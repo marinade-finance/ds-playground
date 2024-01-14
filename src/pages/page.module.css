@@ -41,3 +41,28 @@
     height: calc(100vh - 60px);
     overflow-y: scroll;
 }
+
+.button {
+    vertical-align: middle;
+    text-align: center;
+    padding: 2px 8px;
+    margin: 2px;
+    line-height: 30px;
+    background-color: darkblue;
+}
+
+.button:hover {
+    background-color: blue;
+    cursor: pointer;
+}
+
+.button:active {
+    background-color: lightblue;
+    cursor: pointer;
+}
+
+.controlSection > .title {
+    padding: 2px;
+    font-style: italic;
+    text-align: left;
+}

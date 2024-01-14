@@ -1,15 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useDeferredValue, useEffect, useMemo, useState } from "react";
 import styles from './page.module.css'
 import { Navigation } from "../components/navigation/navigation";
 import { ValidatorsTable } from "../components/validators-table/validators-table";
-import { EligibilityConfig, calcValidatorsEligibilities } from "../eligibility";
+import { EligibilityConfig, ValidatorsEligibilities, calcValidatorsEligibilities } from "../eligibility";
 import { NumberSelector } from "../components/control/number-selector";
 import { ValueSelector } from "../components/control/value-selector";
-import { ScoreConfig, calcValidatorsScores } from "../scoring";
-import { StakesConfig, calcValidatorsStakes } from "../staking";
+import { ScoreConfig, Scores, calcValidatorsScores } from "../scoring";
+import { Stakes, StakesConfig, calcValidatorsStakes } from "../staking";
 import { Loader } from "../components/common/loader";
 import { getMaxEpoch, getValidatorsRawData } from "../validator-data";
-import { aggregateValidatorsData } from "../aggregate";
+import { AggregatedValidators, aggregateValidatorsData, scoreTooltipBuilders } from "../aggregate";
 import { calcClusterInfo } from "../cluster-info";
 import { zip } from "../utils";
 
@@ -19,6 +19,42 @@ const SNAPSHOT_VERSION = 1
 type Snapshot = {
     values: any[]
     version: number
+}
+
+const DEFAULT_SNAPSHOT = 'eyJ2YWx1ZXMiOlsxMCw1LDUsMC4wMSwxLDIsMywxMCwxNCwxNCw4LDk4LDgwLDEwMCwwLjksIm1pbihjcmVkaXRzX3BjdF9tZWFuIF4gMTAsIDEpIiwicGllY2V3aXNlKChicF9tZWFuIC0gYnBfY2x1c3Rlcl9tZWFuKSAvIGJwX2NsdXN0ZXJfc3RkX2RldiA8IC0xLCBicF9tZWFuIC8gKGJwX2NsdXN0ZXJfbWVhbiAtIGJwX2NsdXN0ZXJfc3RkX2RldiksIDEpIiwicGllY2V3aXNlKGNvbW1pc3Npb25faW5mbGF0aW9uX21heCA8PSAxMCwgKDEwMCAtIGNvbW1pc3Npb25faW5mbGF0aW9uX21heCkgLyAxMDAsIDApIiwiKDEwMCAtIGNvbW1pc3Npb25fbWV2KSAvIDEwMCIsInBpZWNld2lzZShjb3VudHJ5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGNvdW50cnlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAwLjI1LCAwKSIsInBpZWNld2lzZShjaXR5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGNpdHlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAwLjI1LCAwKSIsInBpZWNld2lzZShhc29fc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0IDwgMS8zLCAoMSAtICgzICogYXNvX3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCkpIF4gMC4yNSwgMCkiLCJwaWVjZXdpc2Uobm9kZV9zdGFrZV9sYXN0IDwgODAwMDAwLCAxLCBub2RlX3N0YWtlX2xhc3QgPCAzMDAwMDAwLCAoMSAtIChub2RlX3N0YWtlX2xhc3QgLSA4MDAwMDApIC8gKDMwMDAwMDAgLSA4MDAwMDApKSBeIDAuNSwgMCkiLDYwMDAwMDAsInR2bCAvICgoNjAwMDAwMCAvICAzMDAwMCkgKiAxLjUgXiAobG9nKHR2bCAvIDYwMDAwMDApIC8gbG9nKDIpKSkiLDEsIjEgKyAoKHNjb3JlIC0gMC45NCkgLyAoMSAtIDAuOTQpKSBeMTAiLDAuOF0sInZlcnNpb24iOjF9'
+
+const exportData = (
+    { aggregatedValidators, scores, eligibilities, stakes }: {
+        aggregatedValidators: AggregatedValidators
+        scores: Scores
+        eligibilities: ValidatorsEligibilities
+        stakes: Stakes
+    }) => {
+    const header = ['voteAccount']
+    header.push(...Array.from({ length: scoreTooltipBuilders.length }, (_, i) => `score_component_${i}`))
+    header.push('stake', 'hypothetical_stake')
+    header.push('basic_eligible', 'bonus_eligible')
+    const rows = []
+    for (const [voteAccount, validator] of Object.entries(aggregatedValidators)) {
+        const row = []
+        row.push(voteAccount)
+        row.push(scores[voteAccount].score)
+        row.push(...scores[voteAccount].scores)
+        row.push(stakes[voteAccount]?.total ?? '')
+        row.push(stakes[voteAccount]?.hypotheticalTotal ?? '')
+        row.push(eligibilities[voteAccount].basicEligibility)
+        row.push(eligibilities[voteAccount].bonusEligibility)
+        row.join(',')
+        rows.push(row)
+    }
+    const content = `${header.join(',')}\n${rows.join('\n')}`
+    const uri = `data:text/csv,${encodeURI(content)}`
+    const link = document.createElement("a");
+    link.download = 'ds-playground.csv';
+    link.href = uri;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 export const PagePlaygroundAlgo: React.FC = () => {
@@ -102,6 +138,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
         try {
             const snapshot = JSON.parse(Buffer.from(stringifiedSnapshot, 'base64').toString()) as Snapshot
             if (snapshot.version !== SNAPSHOT_VERSION) {
+                console.error('Cannot restore snapshot version:', snapshot.version)
                 return
             }
             for (const [snapshotValue, [value, setValue]] of zip(snapshot.values, snapshotConfig)) {
@@ -189,7 +226,6 @@ export const PagePlaygroundAlgo: React.FC = () => {
             console.time(timeLabel("getMaxEpoch"))
             const endEpoch = getMaxEpoch(validatorsRawData.validators)
             const startEpoch = endEpoch - basicEligibilityEpochs - bonusEligibilityExtraEpochs
-            console.log(startEpoch, endEpoch)
             console.timeEnd(timeLabel("getMaxEpoch"))
 
             console.time(timeLabel("calcClusterInfo"))
@@ -249,12 +285,21 @@ export const PagePlaygroundAlgo: React.FC = () => {
         maxStakeShare,
     ])
 
+    const deferredTable = useDeferredValue(validatorsTableData)
+
     return <div className={styles.pageWrap}>
         <div className={styles.navigation}>
             <Navigation />
         </div>
         <div className={styles.control}>
             <div className={styles.controlSection}>
+                <div className={styles.title}>Controls</div>
+                <div className={styles.button} onClick={() => restoreSnapshot(DEFAULT_SNAPSHOT)}>Reset</div>
+                <div className={styles.button} onClick={() => validatorsTableData && exportData(validatorsTableData)}>Export</div>
+                <div className={styles.button} onClick={() => navigator.clipboard.writeText(window.location.href)}>Copy Link</div>
+            </div>
+            <div className={styles.controlSection}>
+                <div className={styles.title}>Weights of scoring components</div>
                 <NumberSelector title="Credits" default={componentWeightVoteCredits} onChange={(value) => setComponentWeightVoteCredits(value)} />
                 <NumberSelector title="Blocks" default={componentWeightBlockProduction} onChange={(value) => setComponentWeightBlockProduction(value)} />
                 <NumberSelector title="Inflation" default={componentWeightInflationCommission} onChange={(value) => setComponentWeightInflationCommission(value)} />
@@ -265,15 +310,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
                 <NumberSelector title="Node stake" default={componentWeightStakeConcentrationNode} onChange={(value) => setComponentWeightStakeConcentrationNode(value)} />
             </div>
             <div className={styles.controlSection}>
-                <NumberSelector title="Basic eligibility [epochs]" default={basicEligibilityEpochs} onChange={(value) => setBasicEligibilityEpochs(value)} />
-                <NumberSelector title="Bonus eligibility [epochs]" default={bonusEligibilityExtraEpochs} onChange={(value) => setBonusEligibilityExtraEpochs(value)} />
-                <NumberSelector title="Max inflation commission [%]" default={maxCommission} onChange={(value) => setMaxCommission(value)} />
-                <NumberSelector title="Vote credits warning [%]" default={voteCreditsWarning} onChange={(value) => setVoteCreditsWarning(value)} />
-                <NumberSelector title="Vote credits low [%]" default={voteCreditsLow} onChange={(value) => setVoteCreditsLow(value)} />
-                <NumberSelector title="Min external stake [SOL]" default={minExternalStake} onChange={(value) => setMinExternalStake(value)} />
-                <NumberSelector title="Minimum score" default={minScore} onChange={(value) => setMinScore(value)} />
-            </div>
-            <div className={styles.controlSection}>
+                <div className={styles.title}>Formulas for scoring components</div>
                 <ValueSelector parse={parseString} title="Credits" default={formulaVoteCredits} onChange={(value) => setFormulaVoteCredits(value)} />
                 <ValueSelector parse={parseString} title="Blocks" default={formulaBlockProduction} onChange={(value) => setFormulaBlockProduction(value)} />
                 <ValueSelector parse={parseString} title="Inflation" default={formulaInflationCommission} onChange={(value) => setFormulaInflationCommission(value)} />
@@ -284,6 +321,17 @@ export const PagePlaygroundAlgo: React.FC = () => {
                 <ValueSelector parse={parseString} title="Node stake" default={formulaStakeConcentrationNode} onChange={(value) => setFormulaStakeConcentrationNode(value)} />
             </div>
             <div className={styles.controlSection}>
+                <div className={styles.title}>Eligibility settings</div>
+                <NumberSelector title="Basic eligibility [epochs]" default={basicEligibilityEpochs} onChange={(value) => setBasicEligibilityEpochs(value)} />
+                <NumberSelector title="Bonus eligibility [epochs]" default={bonusEligibilityExtraEpochs} onChange={(value) => setBonusEligibilityExtraEpochs(value)} />
+                <NumberSelector title="Max inflation commission [%]" default={maxCommission} onChange={(value) => setMaxCommission(value)} />
+                <NumberSelector title="Vote credits warning [%]" default={voteCreditsWarning} onChange={(value) => setVoteCreditsWarning(value)} />
+                <NumberSelector title="Vote credits low [%]" default={voteCreditsLow} onChange={(value) => setVoteCreditsLow(value)} />
+                <NumberSelector title="Min external stake [SOL]" default={minExternalStake} onChange={(value) => setMinExternalStake(value)} />
+                <NumberSelector title="Minimum score" default={minScore} onChange={(value) => setMinScore(value)} />
+            </div>
+            <div className={styles.controlSection}>
+                <div className={styles.title}>Stake assignment settings</div>
                 <NumberSelector title="TVL for algorithmic [SOL]" default={tvl} onChange={(value) => setTvl(value)} />
                 <ValueSelector parse={parseString} title="Stake block size" default={formulaStakeBlockSize} onChange={(value) => setFormulaStakeBlockSize(value)} />
                 <ValueSelector parse={parseString} title="Stake blocks from score" default={formulaStakeBlocksFromScore} onChange={(value) => setFormulaStakeBlocksFromScore(value)} />
@@ -292,11 +340,8 @@ export const PagePlaygroundAlgo: React.FC = () => {
             </div>
         </div>
         <div className={styles.content}>
-            {loading || !validatorsTableData ? <><br /><br /><br /><Loader /></> : <ValidatorsTable
-                aggregatedValidators={validatorsTableData.aggregatedValidators}
-                scores={validatorsTableData.scores}
-                eligibilities={validatorsTableData.eligibilities}
-                stakes={validatorsTableData.stakes}
+            {loading || !deferredTable || JSON.stringify(deferredTable) !== JSON.stringify(validatorsTableData) ? <><br /><br /><br /><Loader /></> : <ValidatorsTable
+                validatorsTableData={deferredTable}
             />}
         </div>
     </div>

@@ -22,12 +22,12 @@ const formatScore = (score: number): string => {
     }
 }
 
-const buildIssues = (issuesCollection: Issue[][]) => {
+const buildIssues = (validator: AggregatedValidator, issuesCollection: Issue[][]) => {
     return issuesCollection.map((issues, epochIndex) => <div className={styles.epoch} key={epochIndex}>
         {
             issues === null || issues.length === 0
                 ? <div title={`Epoch ${epochIndex} with no issues`} className={`${styles.issue}`}>&nbsp;</div>
-                : issues.map((issue, i) => <div key={i} title={`Epoch ${epochIndex}: ${issue.message}`} className={`${styles.issue} ${styles[issue.type]}`}>&nbsp;</div>)
+                : issues.map((issue, i) => <div key={i} title={`Epoch ${epochIndex + validator.epochs[i]}: ${issue.message}`} className={`${styles.issue} ${styles[issue.type]}`}>&nbsp;</div>)
         }
     </div>)
 }
@@ -44,12 +44,12 @@ export const Validator: React.FC<Props> = (props: Props) => {
             <div className={styles.scoreBreakdown}>
                 <div className={styles.totalScore}>{formatScore(props.score.score)}</div>
                 {
-                    props.score.scores.map((score, i) => <div key={i} title={`${props.score.values[i]}`} className={props.score.scoreErrors[i] ? styles.error : ''}>{formatScore(score)}</div>)
+                    props.score.scores.map((score, i) => <div key={i} title={`${props.score.tooltips[i]}`} className={props.score.scoreErrors[i] ? styles.error : ''}>{formatScore(score)}</div>)
                 }
             </div>
             <div className={styles.validatorEligibility}>
                 {
-                    buildIssues(props.eligibility.issuesCollection)
+                    buildIssues(props.aggregatedValidator, props.eligibility.issuesCollection)
                 }
             </div>
         </div>

@@ -7,10 +7,12 @@ import { Stakes } from "../../staking";
 import { AggregatedValidators } from "../../aggregate";
 
 type Props = {
-    aggregatedValidators: AggregatedValidators
-    scores: Scores
-    eligibilities: ValidatorsEligibilities
-    stakes: Stakes
+    validatorsTableData: {
+        aggregatedValidators: AggregatedValidators
+        scores: Scores
+        eligibilities: ValidatorsEligibilities
+        stakes: Stakes
+    }
 }
 
 const getEpochRange = (validators: any, epochs: number) => {
@@ -41,17 +43,17 @@ export const ValidatorsTable: React.FC<Props> = (props) => {
         {
             (() => {
                 console.time("sort")
-                const orderedVoteAccount = orderByEligibiltyAndScore(props.scores, props.eligibilities)
+                const orderedVoteAccount = orderByEligibiltyAndScore(props.validatorsTableData.scores, props.validatorsTableData.eligibilities)
                 console.timeEnd("sort")
 
                 console.time("rows")
                 const rows = orderedVoteAccount.map((voteAccount, rowIndex) =>
                     <Validator
                         row={rowIndex + 1}
-                        aggregatedValidator={props.aggregatedValidators[voteAccount]}
-                        eligibility={props.eligibilities[voteAccount]}
-                        score={props.scores[voteAccount]}
-                        stake={props.stakes[voteAccount]}
+                        aggregatedValidator={props.validatorsTableData.aggregatedValidators[voteAccount]}
+                        eligibility={props.validatorsTableData.eligibilities[voteAccount]}
+                        score={props.validatorsTableData.scores[voteAccount]}
+                        stake={props.validatorsTableData.stakes[voteAccount]}
                         key={voteAccount}
                     />)
                 console.timeEnd("rows")

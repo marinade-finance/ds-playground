@@ -82,9 +82,31 @@ export const aggregateValidatorsData = ({ validators, mevConfig, blacklist }: Aw
 export const selectCreditsPctMean = (validator: AggregatedValidator, clusterInfo: ClusterInfo, fullEpochs: number) => mean(validator.epochs.slice(1, fullEpochs + 1).map((epoch, fullEpochIndex) => validator.credits[fullEpochIndex + 1] / clusterInfo.targetCreditsByEpoch.get(epoch)))
 export const selectBlockProductionMean = (validator: AggregatedValidator, fullEpochs: number) => sum(validator.leaderSlots.slice(1, fullEpochs + 1)) === 0 ? 1 : sum(validator.blocksProduced.slice(1, fullEpochs + 1)) / sum(validator.leaderSlots.slice(1, fullEpochs + 1))
 export const selectExternalStakeMin = (validator: AggregatedValidator, fullEpochs: number) => Math.min(...validator.externalStake.slice(0, fullEpochs + 1))
-export const selectCommissonInflationMax = (validator: AggregatedValidator, epochs: number) => Math.max(...validator.commission.slice(0, epochs + 1))
+export const selectCommissonInflationMax = (validator: AggregatedValidator, epochs: number) => Math.max(...validator.commission.slice(0, epochs))
 export const selectCommissonMEV = (validator: AggregatedValidator) => validator.mevCommission
 export const selectCountryStakeConcentration = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => clusterInfo.country.get(validator.country ?? '???') ?? 0
 export const selectCityStakeConcentration = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => clusterInfo.city.get(validator.city ?? '???') ?? 0
 export const selectASOStakeConcentration = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => clusterInfo.aso.get(validator.aso ?? '???') ?? 0
 export const selectNodeStake = (validator: AggregatedValidator) => validator.stake[0]
+
+export const scoreTooltipCredits = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => `Credits: ${validator.credits.slice(1).map((credits, e) => (`${(100 * credits / clusterInfo.targetCreditsByEpoch.get(validator.epochs[e + 1])).toFixed(2)}%`)).join(', ')}`
+export const scoreTooltipBlockProduction = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => `Block production: ${validator.blocksProduced.map((blocksProduced, e) => (validator.leaderSlots[e] ? `${(100 * blocksProduced / validator.leaderSlots[e]).toFixed(2)}%` : '-')).join(', ')}`
+export const scoreTooltipCommissionInflation = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => `Inflation commission: ${validator.commission.map(c => `${c}%`).join(', ')}`
+export const scoreTooltipCommissionMEV = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => `MEV commission: ${validator.mevCommission} %`
+export const scoreTooltipCountryStakeConcentration = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => `Country: ${validator.country}`
+export const scoreTooltipCityStakeConcentration = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => `City: ${validator.city}`
+export const scoreTooltipASOStakeConcentration = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => `ASO: ${validator.aso}`
+export const scoreTooltipNodeStake = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => `Stake of the node: ${Math.round(validator.stake[0]).toLocaleString()} SOL`
+
+export const scoreTooltipBuilders: ScoreTooltipBuilder[] = [
+    scoreTooltipCredits,
+    scoreTooltipBlockProduction,
+    scoreTooltipCommissionInflation,
+    scoreTooltipCommissionMEV,
+    scoreTooltipCountryStakeConcentration,
+    scoreTooltipCityStakeConcentration,
+    scoreTooltipASOStakeConcentration,
+    scoreTooltipNodeStake,
+]
+
+export type ScoreTooltipBuilder = (validator: AggregatedValidator, clusterInfo: ClusterInfo) => string

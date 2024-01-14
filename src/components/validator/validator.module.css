@@ -30,6 +30,7 @@
     margin-right: 4px;
     color: grey;
     font-weight: bold;
+    cursor: default;
 }
 
 .validator .staked {
@@ -47,6 +48,7 @@
 .validator .scoreBreakdown {
     display: flex;
     align-items: center;
+    cursor: default;
 }
 .validator .scoreBreakdown > div {
     background-color: black;

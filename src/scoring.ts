@@ -1,5 +1,5 @@
 import { Parser } from "expr-eval"
-import { AggregatedValidator, AggregatedValidators, selectASOStakeConcentration, selectBlockProductionMean, selectCityStakeConcentration, selectCommissonInflationMax, selectCommissonMEV, selectCountryStakeConcentration, selectCreditsPctMean, selectNodeStake } from "./aggregate"
+import { AggregatedValidator, AggregatedValidators, scoreTooltipBuilders, selectASOStakeConcentration, selectBlockProductionMean, selectCityStakeConcentration, selectCommissonInflationMax, selectCommissonMEV, selectCountryStakeConcentration, selectCreditsPctMean, selectNodeStake } from "./aggregate"
 import { ClusterInfo } from "./cluster-info"
 import { mathUtilityFunctions } from "./math"
 import { zip } from "./utils"
@@ -10,7 +10,7 @@ const selectVariables = (clusterInfo: ClusterInfo, aggregatedValidator: Aggregat
 
     credits_pct_mean: selectCreditsPctMean(aggregatedValidator, clusterInfo, scoreConfig.epochs),
     bp_mean: selectBlockProductionMean(aggregatedValidator, scoreConfig.epochs),
-    commission_inflation_max: selectCommissonInflationMax(aggregatedValidator, scoreConfig.epochs),
+    commission_inflation_max: selectCommissonInflationMax(aggregatedValidator, scoreConfig.epochs + 1),
     commission_mev: selectCommissonMEV(aggregatedValidator),
     country_stake_concentration_last: selectCountryStakeConcentration(aggregatedValidator, clusterInfo),
     city_stake_concentration_last: selectCityStakeConcentration(aggregatedValidator, clusterInfo),
@@ -27,15 +27,17 @@ export type Score = {
     scores: number[]
     values: number[]
     scoreErrors: boolean[]
+    tooltips: string[]
 }
 const calcValidatorScore = (clusterInfo: ClusterInfo, aggregatedValidator: AggregatedValidator, formulas: string[], weights: number[], scoreConfig: ScoreConfig): Score => {
     const scoreErrors = []
     const scores = []
     const values = []
+    const tooltips = []
     let totalWeight = 0
     let totalScore = 0
     const variables = { ...selectVariables(clusterInfo, aggregatedValidator, scoreConfig), ...mathUtilityFunctions()}
-    for (const [formula, weight] of zip(formulas, weights)) {
+    for (const [formula, weight, tooltipBuilder] of zip(formulas, weights, scoreTooltipBuilders)) {
         let componentScore = 0
         try {
             values.push(0)
@@ -47,6 +49,7 @@ const calcValidatorScore = (clusterInfo: ClusterInfo, aggregatedValidator: Aggre
         }
         totalWeight += weight
         totalScore += weight * componentScore
+        tooltips.push(tooltipBuilder(aggregatedValidator, clusterInfo))
 
         scores.push(componentScore)
     }
@@ -57,6 +60,7 @@ const calcValidatorScore = (clusterInfo: ClusterInfo, aggregatedValidator: Aggre
         scores,
         values,
         scoreErrors,
+        tooltips,
     }
 }
 

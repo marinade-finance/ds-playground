@@ -18,6 +18,10 @@ const parseNumber = (value: string): number => {
 export const NumberSelector: React.FC<Props> = (props) => {
     const [value, setValue] = useState(props.default.toString())
     const [error, setError] = useState(false)
+    
+    useEffect(() => {
+        setValue(props.default.toString())
+    }, [props.default])
 
     useEffect(() => {
         try {
