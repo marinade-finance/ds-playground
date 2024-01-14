@@ -1,0 +1,8 @@
+.numberSelector input {
+    width: 65px;
+    margin-left: 5px;
+}
+
+.numberSelector input.error {
+    background-color: #faa0a0;
+}

@@ -1,0 +1,8 @@
+.valueSelector input {
+    width: 200px;
+    margin-left: 5px;
+}
+
+.valueSelector input.error {
+    background-color: #faa0a0;
+}

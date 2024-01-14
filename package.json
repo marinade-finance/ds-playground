@@ -1,0 +1,49 @@
+{
+  "name": "ds-playground",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "webpack-cli serve --mode=development --env development --open --hot",
+    "build": "webpack --mode=production --env production --progress"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bn.js": "^5.1.1",
+    "@types/node": "16.18.24",
+    "@types/react": "18.0.38",
+    "@types/react-dom": "18.0.11",
+    "@types/webpack": "5.28.1",
+    "@types/webpack-dev-server": "4.7.1",
+    "@typescript-eslint/eslint-plugin": "5.59.0",
+    "@typescript-eslint/parser": "5.59.0",
+    "css-loader": "^6.7.3",
+    "css-modules-typescript-loader": "^4.0.1",
+    "fork-ts-checker-webpack-plugin": "7.3.0",
+    "html-webpack-plugin": "5.5.1",
+    "style-loader": "^3.3.2",
+    "ts-loader": "9.4.2",
+    "ts-node": "10.9.1",
+    "tsconfig-paths-webpack-plugin": "4.0.1",
+    "typescript": "5.0.4",
+    "webpack": "5.83.1",
+    "webpack-cli": "4.10.0",
+    "webpack-dev-server": "4.13.3"
+  },
+  "dependencies": {
+    "@solana/wallet-adapter-react": "^0.15.32",
+    "@solana/wallet-adapter-react-ui": "^0.9.31",
+    "@solana/wallet-adapter-solflare": "^0.6.24",
+    "@solana/wallet-adapter-wallets": "^0.19.18",
+    "@solana/web3.js": "^1.77.3",
+    "bn.js": "^5.2.1",
+    "bs58": "^5.0.0",
+    "buffer": "^6.0.3",
+    "expr-eval": "^2.0.2",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.12.0"
+  }
+}

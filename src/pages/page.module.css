@@ -1,0 +1,43 @@
+.pageWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+.control {
+    background-color: #404144;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    width: 100vw;
+}
+
+.control * {
+    font-size: 12px;
+}
+
+.controlSection {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    padding: 0px 10px;
+}
+
+.navigation {
+    background-color: #303134;
+    position: relative;
+    display: flex;
+    width: 100vw;
+    height: 30px;
+}
+
+.content {
+    position: relative;
+    width: 100vw;
+    height: calc(100vh - 60px);
+    overflow-y: scroll;
+}

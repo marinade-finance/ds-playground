@@ -1,0 +1,17 @@
+.navigation {
+    display: flex;
+}
+
+.navigation>div {
+    vertical-align: middle;
+    text-align: center;
+    padding: 0px 5px;
+    margin: 0px 2px 0px 0px;
+    line-height: 30px;
+    background-color: mediumseagreen;
+}
+
+.navigation>div:hover {
+    background-color: seagreen;
+    cursor: pointer;
+}

@@ -1,0 +1,162 @@
+.validator:hover{
+    background-color: black;
+}
+
+.validator {
+    font-size: 12px;
+    border-top: 1px solid black;
+    display: flex;
+}
+
+.validator .order {
+    text-align: right;
+    width: 35px;
+    height: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-top: 8px;
+    margin-right: 4px;
+}
+
+.validator .stake {
+    text-align: right;
+    width: 60px;
+    height: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-top: 8px;
+    margin-right: 4px;
+    color: grey;
+    font-weight: bold;
+}
+
+.validator .staked {
+    color: lightgreen;
+}
+
+.validator .validatorDetail div {
+    text-align: left;
+    width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.validator .scoreBreakdown {
+    display: flex;
+    align-items: center;
+}
+.validator .scoreBreakdown > div {
+    background-color: black;
+    margin-right: 2px;
+    width: 40px;
+    overflow: hidden;
+}
+.validator .scoreBreakdown > .totalScore {
+    font-weight: bold;
+}
+.validator .scoreBreakdown > .error {
+    background-color: indianred;
+}
+
+.validator .validatorEligibility {
+    position: relative;
+    cursor: default;
+    display: flex;
+}
+
+.validator .validatorEligibility .epoch {
+    margin-right: 1px;
+    width: 20px;
+    height: 100%;
+    background-color: lightgreen;
+    overflow: hidden;
+    display: flex;
+    align-content: stretch;
+}
+
+.validator .validatorEligibility .issue {
+    flex: 1;
+}
+
+.validator .validatorEligibility .issue.COMMISSION {
+    background: repeating-linear-gradient(
+        45deg,
+        black,
+        black 2px,
+        red 2px,
+        red 4px
+    );
+}
+
+.validator .validatorEligibility .issue.VOTE_CREDITS_WARNING {
+    background: repeating-linear-gradient(
+        45deg,
+        red,
+        red 2px,
+        yellow 2px,
+        yellow 4px
+    );
+}
+
+.validator .validatorEligibility .issue.VOTE_CREDITS_LOW {
+    background: repeating-linear-gradient(
+        45deg,
+        red,
+        red 2px,
+        violet 2px,
+        violet 4px
+    );
+}
+
+.validator .validatorEligibility .issue.NO_DATA {
+    background: repeating-linear-gradient(
+        45deg,
+        grey,
+        grey 2px,
+        black 2px,
+        black 4px
+    );
+}
+
+.validator .validatorEligibility .issue.EXTERNAL_STAKE {
+    background: repeating-linear-gradient(
+        45deg,
+        blue,
+        blue 2px,
+        lightblue 2px,
+        lightblue 4px
+    );
+}
+
+.validator .validatorEligibility .issue.CENTRALIZATION {
+    background: repeating-linear-gradient(
+        45deg,
+        pink,
+        pink 2px,
+        salmon 2px,
+        salmon 4px
+    );
+}
+
+.validator .validatorEligibility .issue.BLACKLIST {
+    background: repeating-linear-gradient(
+        45deg,
+        darkred,
+        darkred 2px,
+        black 2px,
+        black 4px
+    );
+}
+
+.validator .validatorEligibility .issue.SCORE {
+    background: repeating-linear-gradient(
+        45deg,
+        orange,
+        orange 2px,
+        green 2px,
+        green 4px
+    );
+}
