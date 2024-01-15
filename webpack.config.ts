@@ -30,7 +30,7 @@ const webpackConfig = (env: any): Configuration => ({
                 options: {
                     transpileOnly: true
                 },
-                exclude: /build/
+                exclude: /node_modules/
             },
         ]
     },
