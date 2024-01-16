@@ -9,6 +9,7 @@ interface CssExports {
   'SCORE': string;
   'VOTE_CREDITS_LOW': string;
   'VOTE_CREDITS_WARNING': string;
+  'eligible': string;
   'epoch': string;
   'error': string;
   'issue': string;

@@ -32,11 +32,43 @@ const buildIssues = (validator: AggregatedValidator, issuesCollection: Issue[][]
     </div>)
 }
 
+const buildAlgoStakeTooltip = (stake: Stake, eligibility: ValidatorEligibility): string => {
+    return [
+        `Stake from algo`,
+        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`
+    ].join('\n')
+}
+
+const buildMSolStakeTooltip = (stake: Stake, eligibility: ValidatorEligibility): string => {
+    return [
+        `Stake from mSOL`,
+        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`
+    ].join('\n')
+}
+
+const buildVeMndeStakeTooltip = (stake: Stake, eligibility: ValidatorEligibility): string => {
+    return [
+        `Stake from veMNDE`,
+        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`
+    ].join('\n')
+}
+
 export const Validator: React.FC<Props> = (props: Props) => {
     try {
+        const algoStakeTooltip = props.stake ? buildAlgoStakeTooltip(props.stake, props.eligibility) : undefined
+        const mSolStakeTooltip = props.stake ? buildMSolStakeTooltip(props.stake, props.eligibility) : undefined
+        const veMndeStakeTooltip = props.stake ? buildVeMndeStakeTooltip(props.stake, props.eligibility) : undefined
         return <div className={styles.validator}>
             <div className={styles.order}>{props.row}</div>
-            <div className={`${styles.stake} ${props.stake?.total ? styles.staked : ''}`}>{props.stake?.hypotheticalTotal ? Math.round(props.stake.hypotheticalTotal).toLocaleString() : null}</div>
+            <div className={`${styles.stake} ${props.stake?.algoStake ? styles.staked : ''} ${props.eligibility.basicEligibility ? styles.eligible : ''}`} title={algoStakeTooltip}>
+                {props.stake?.algoStake ? Math.round(props.stake.algoStake).toLocaleString() : <>&nbsp;</>}
+            </div>
+            <div className={`${styles.stake} ${props.stake?.mSolStake ? styles.staked : ''} ${props.eligibility.basicEligibility ? styles.eligible : ''}`} title={mSolStakeTooltip}>
+                {props.stake?.mSolStake ? Math.round(props.stake.mSolStake).toLocaleString() : <>&nbsp;</>}
+            </div>
+            <div className={`${styles.stake} ${props.stake?.veMndeStake ? styles.staked : ''} ${props.eligibility.basicEligibility ? styles.eligible : ''}`} title={veMndeStakeTooltip}>
+                {props.stake?.veMndeStake ? Math.round(props.stake.veMndeStake).toLocaleString() : <>&nbsp;</>}
+            </div>
             <div className={styles.validatorDetail}>
                 <div>{props.aggregatedValidator.voteAccount}</div>
                 <div>{props.aggregatedValidator.name || "---"}</div>

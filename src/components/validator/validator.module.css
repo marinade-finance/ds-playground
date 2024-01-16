@@ -33,6 +33,16 @@
     cursor: default;
 }
 
+.validator .stake:not(.eligible) {
+    background: repeating-linear-gradient(
+        45deg,
+        darkred,
+        darkred 2px,
+        transparent 2px,
+        transparent 4px
+    );
+}
+
 .validator .staked {
     color: lightgreen;
 }

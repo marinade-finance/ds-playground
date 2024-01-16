@@ -1,4 +1,4 @@
-import { AggregatedValidator, AggregatedValidators } from "./aggregate"
+import { AggregatedValidator, AggregatedValidators, selectExternalStakeMin } from "./aggregate"
 import { ClusterInfo } from "./cluster-info"
 import { Score, Scores } from "./scoring"
 
@@ -10,6 +10,7 @@ export type EligibilityConfig = {
     basicEligibilityEpochs: number
     bonusEligibilityExtraEpochs: number
     minScore: number
+    maxStakeShare: number
 }
 
 export const enum Type {
@@ -136,13 +137,19 @@ export type ValidatorEligibility = {
     basicEligibility: boolean
     bonusEligibility: boolean
     issuesCollection: Issue[][]
+    capFromBond: number
+    capFromExternalStake: number
 }
 const calcValidatorEligibility = (clusterInfo: ClusterInfo, aggregatedValidator: AggregatedValidator, scores: Score, eligibilityConfig: EligibilityConfig): ValidatorEligibility => {
     const issuesCollection = getIssuesCollection(clusterInfo, aggregatedValidator, scores, eligibilityConfig)
+    const minExternalStake = selectExternalStakeMin(aggregatedValidator, eligibilityConfig.basicEligibilityEpochs)
+
     return {
         basicEligibility: isBasicEligible(issuesCollection, eligibilityConfig),
         bonusEligibility: isBonusEligible(issuesCollection, eligibilityConfig),
         issuesCollection,
+        capFromBond: 1e9,
+        capFromExternalStake: minExternalStake * (eligibilityConfig.maxStakeShare / (1 - eligibilityConfig.maxStakeShare)),
     }
 }
 

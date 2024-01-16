@@ -21,7 +21,7 @@ type Snapshot = {
     version: number
 }
 
-const DEFAULT_SNAPSHOT = 'eyJ2YWx1ZXMiOlsxMCw1LDUsMC4wMSwxLDIsMywxMCwxNCwxNCw4LDk4LDgwLDEwMCwwLjksIm1pbihjcmVkaXRzX3BjdF9tZWFuIF4gMTAsIDEpIiwicGllY2V3aXNlKChicF9tZWFuIC0gYnBfY2x1c3Rlcl9tZWFuKSAvIGJwX2NsdXN0ZXJfc3RkX2RldiA8IC0xLCBicF9tZWFuIC8gKGJwX2NsdXN0ZXJfbWVhbiAtIGJwX2NsdXN0ZXJfc3RkX2RldiksIDEpIiwicGllY2V3aXNlKGNvbW1pc3Npb25faW5mbGF0aW9uX21heCA8PSAxMCwgKDEwMCAtIGNvbW1pc3Npb25faW5mbGF0aW9uX21heCkgLyAxMDAsIDApIiwiKDEwMCAtIGNvbW1pc3Npb25fbWV2KSAvIDEwMCIsInBpZWNld2lzZShjb3VudHJ5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGNvdW50cnlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAwLjI1LCAwKSIsInBpZWNld2lzZShjaXR5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGNpdHlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAwLjI1LCAwKSIsInBpZWNld2lzZShhc29fc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0IDwgMS8zLCAoMSAtICgzICogYXNvX3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCkpIF4gMC4yNSwgMCkiLCJwaWVjZXdpc2Uobm9kZV9zdGFrZV9sYXN0IDwgODAwMDAwLCAxLCBub2RlX3N0YWtlX2xhc3QgPCAzMDAwMDAwLCAoMSAtIChub2RlX3N0YWtlX2xhc3QgLSA4MDAwMDApIC8gKDMwMDAwMDAgLSA4MDAwMDApKSBeIDAuNSwgMCkiLDYwMDAwMDAsInR2bCAvICgoNjAwMDAwMCAvICAzMDAwMCkgKiAxLjUgXiAobG9nKHR2bCAvIDYwMDAwMDApIC8gbG9nKDIpKSkiLDEsIjEgKyAoKHNjb3JlIC0gMC45NCkgLyAoMSAtIDAuOTQpKSBeMTAiLDAuOF0sInZlcnNpb24iOjF9'
+const DEFAULT_SNAPSHOT = 'eyJ2YWx1ZXMiOlsxMCw1LDUsMC4wMSwxLDIsMywxMCwxNCwxNCw4LDk4LDgwLDEwMCwwLjkyLDAuOCwibWluKGNyZWRpdHNfcGN0X21lYW4gXiAxMCwgMSkiLCJwaWVjZXdpc2UoKGJwX21lYW4gLSBicF9jbHVzdGVyX21lYW4pIC8gYnBfY2x1c3Rlcl9zdGRfZGV2IDwgLTEsIGJwX21lYW4gLyAoYnBfY2x1c3Rlcl9tZWFuIC0gYnBfY2x1c3Rlcl9zdGRfZGV2KSwgMSkiLCJwaWVjZXdpc2UoY29tbWlzc2lvbl9pbmZsYXRpb25fbWF4IDw9IDEwLCAoMTAwIC0gY29tbWlzc2lvbl9pbmZsYXRpb25fbWF4KSAvIDEwMCwgMCkiLCIoMTAwIC0gY29tbWlzc2lvbl9tZXYpIC8gMTAwIiwicGllY2V3aXNlKGNvdW50cnlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0IDwgMS8zLCAoMSAtICgzICogY291bnRyeV9zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QpKSBeIDAuMjUsIDApIiwicGllY2V3aXNlKGNpdHlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0IDwgMS8zLCAoMSAtICgzICogY2l0eV9zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QpKSBeIDAuMjUsIDApIiwicGllY2V3aXNlKGFzb19zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QgPCAxLzMsICgxIC0gKDMgKiBhc29fc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAwLjI1LCAwKSIsInBpZWNld2lzZShub2RlX3N0YWtlX2xhc3QgPCA4MDAwMDAsIDEsIG5vZGVfc3Rha2VfbGFzdCA8IDMwMDAwMDAsICgxIC0gKG5vZGVfc3Rha2VfbGFzdCAtIDgwMDAwMCkgLyAoMzAwMDAwMCAtIDgwMDAwMCkpIF4gMC41LCAwKSIsMTAwMDAwMDAsMC4yLDAuMiwidHZsIC8gKCg2MDAwMDAwIC8gIDMwMDAwKSAqIDEuNSBeIChsb2codHZsIC8gNjAwMDAwMCkgLyBsb2coMikpKSIsMSwiMSArICgoc2NvcmUgLSAwLjk0KSAvICgxIC0gMC45NCkpIF4xMCJdLCJ2ZXJzaW9uIjoxfQ=='
 
 const exportData = (
     { aggregatedValidators, scores, eligibilities, stakes }: {
@@ -31,17 +31,17 @@ const exportData = (
         stakes: Stakes
     }) => {
     const header = ['voteAccount']
+    header.push('score')
     header.push(...Array.from({ length: scoreTooltipBuilders.length }, (_, i) => `score_component_${i}`))
-    header.push('stake', 'hypothetical_stake')
+    header.push('stake')
     header.push('basic_eligible', 'bonus_eligible')
     const rows = []
-    for (const [voteAccount, validator] of Object.entries(aggregatedValidators)) {
+    for (const [voteAccount, _] of Object.entries(aggregatedValidators)) {
         const row = []
         row.push(voteAccount)
         row.push(scores[voteAccount].score)
         row.push(...scores[voteAccount].scores)
-        row.push(stakes[voteAccount]?.total ?? '')
-        row.push(stakes[voteAccount]?.hypotheticalTotal ?? '')
+        row.push(stakes[voteAccount]?.totalStake ?? '')
         row.push(eligibilities[voteAccount].basicEligibility)
         row.push(eligibilities[voteAccount].bonusEligibility)
         row.join(',')
@@ -76,7 +76,8 @@ export const PagePlaygroundAlgo: React.FC = () => {
     const [voteCreditsWarning, setVoteCreditsWarning] = useState(98)
     const [voteCreditsLow, setVoteCreditsLow] = useState(80)
     const [minExternalStake, setMinExternalStake] = useState(100)
-    const [minScore, setMinScore] = useState(0.90)
+    const [minScore, setMinScore] = useState(0.92)
+    const [maxStakeShare, setMaxStakeShare] = useState(0.8)
 
     const [formulaVoteCredits, setFormulaVoteCredits] = useState('min(credits_pct_mean ^ 10, 1)')
     const [formulaBlockProduction, setFormulaBlockProduction] = useState('piecewise((bp_mean - bp_cluster_mean) / bp_cluster_std_dev < -1, bp_mean / (bp_cluster_mean - bp_cluster_std_dev), 1)')
@@ -87,11 +88,12 @@ export const PagePlaygroundAlgo: React.FC = () => {
     const [formulaStakeConcentrationASO, setFormulaStakeConcentrationASO] = useState('piecewise(aso_stake_concentration_last < 1/3, (1 - (3 * aso_stake_concentration_last)) ^ 0.25, 0)')
     const [formulaStakeConcentrationNode, setFormulaStakeConcentrationNode] = useState('piecewise(node_stake_last < 800000, 1, node_stake_last < 3000000, (1 - (node_stake_last - 800000) / (3000000 - 800000)) ^ 0.5, 0)')
 
-    const [tvl, setTvl] = useState(6e6)
+    const [tvl, setTvl] = useState(10e6)
+    const [mSolControl, setMSolControl] = useState(0.2)
+    const [veMndeControl, setVeMndeControl] = useState(0.2)
     const [formulaStakeBlockSize, setFormulaStakeBlockSize] = useState('tvl / ((6000000 /  30000) * 1.5 ^ (log(tvl / 6000000) / log(2)))')
     const [stakeBlocksFromBonus, setStakeBlocksFromBonus] = useState(1)
     const [formulaStakeBlocksFromScore, setFormulaStakeBlocksFromScore] = useState('1 + ((score - 0.94) / (1 - 0.94)) ^10')
-    const [maxStakeShare, setMaxStakeShare] = useState(0.8)
 
     const snapshotConfig = [
         [componentWeightVoteCredits, setComponentWeightVoteCredits],
@@ -109,6 +111,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
         [voteCreditsLow, setVoteCreditsLow],
         [minExternalStake, setMinExternalStake],
         [minScore, setMinScore],
+        [maxStakeShare, setMaxStakeShare],
         [formulaVoteCredits, setFormulaVoteCredits],
         [formulaBlockProduction, setFormulaBlockProduction],
         [formulaInflationCommission, setFormulaInflationCommission],
@@ -118,10 +121,11 @@ export const PagePlaygroundAlgo: React.FC = () => {
         [formulaStakeConcentrationASO, setFormulaStakeConcentrationASO],
         [formulaStakeConcentrationNode, setFormulaStakeConcentrationNode],
         [tvl, setTvl],
+        [mSolControl, setMSolControl],
+        [veMndeControl, setVeMndeControl],
         [formulaStakeBlockSize, setFormulaStakeBlockSize],
         [stakeBlocksFromBonus, setStakeBlocksFromBonus],
         [formulaStakeBlocksFromScore, setFormulaStakeBlocksFromScore],
-        [maxStakeShare, setMaxStakeShare],
     ] as const
 
     const takeSnapshot = () => {
@@ -167,15 +171,16 @@ export const PagePlaygroundAlgo: React.FC = () => {
         basicEligibilityEpochs,
         bonusEligibilityExtraEpochs,
         minScore,
+        maxStakeShare,
     }
 
     const stakesConfig: StakesConfig = {
         tvl,
+        mSolControl,
+        veMndeControl,
         formulaStakeBlockSize,
         formulaStakeBlocksFromScore,
         stakeBlocksFromBonus,
-        maxStakeShare,
-        epochs: basicEligibilityEpochs,
     }
 
     const scoreConfig: ScoreConfig = {
@@ -245,7 +250,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
             console.timeEnd(timeLabel("calcValidatorsEligibilities"))
 
             console.time(timeLabel("calcValidatorsStakes"))
-            const stakes = calcValidatorsStakes(aggregatedValidators, scores, eligibilities, stakesConfig, eligibilityConfig)
+            const stakes = calcValidatorsStakes(aggregatedValidators, scores, eligibilities, stakesConfig, validatorsRawData.mSolVotes, validatorsRawData.veMndeVotes)
             console.timeEnd(timeLabel("calcValidatorsStakes"))
 
             setValidatorsTableData({
@@ -270,6 +275,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
         voteCreditsLow,
         minExternalStake,
         minScore,
+        maxStakeShare,
         formulaVoteCredits,
         formulaBlockProduction,
         formulaInflationCommission,
@@ -279,10 +285,11 @@ export const PagePlaygroundAlgo: React.FC = () => {
         formulaStakeConcentrationASO,
         formulaStakeConcentrationNode,
         tvl,
+        mSolControl,
+        veMndeControl,
         formulaStakeBlockSize,
         stakeBlocksFromBonus,
         formulaStakeBlocksFromScore,
-        maxStakeShare,
     ])
 
     const deferredTable = useDeferredValue(validatorsTableData)
@@ -329,14 +336,16 @@ export const PagePlaygroundAlgo: React.FC = () => {
                 <NumberSelector title="Vote credits low [%]" default={voteCreditsLow} onChange={(value) => setVoteCreditsLow(value)} />
                 <NumberSelector title="Min external stake [SOL]" default={minExternalStake} onChange={(value) => setMinExternalStake(value)} />
                 <NumberSelector title="Minimum score" default={minScore} onChange={(value) => setMinScore(value)} />
+                <NumberSelector title="Max stake share [%/100]" default={maxStakeShare} onChange={(value) => setMaxStakeShare(value)} />
             </div>
             <div className={styles.controlSection}>
                 <div className={styles.title}>Stake assignment settings</div>
-                <NumberSelector title="TVL for algorithmic [SOL]" default={tvl} onChange={(value) => setTvl(value)} />
+                <NumberSelector title="TVL [SOL]" default={tvl} onChange={(value) => setTvl(value)} />
+                <NumberSelector title="mSOL votes control [%/100]" default={mSolControl} onChange={(value) => setMSolControl(value)} />
+                <NumberSelector title="veMNDE votes control [%/100]" default={veMndeControl} onChange={(value) => setVeMndeControl(value)} />
                 <ValueSelector parse={parseString} title="Stake block size" default={formulaStakeBlockSize} onChange={(value) => setFormulaStakeBlockSize(value)} />
                 <ValueSelector parse={parseString} title="Stake blocks from score" default={formulaStakeBlocksFromScore} onChange={(value) => setFormulaStakeBlocksFromScore(value)} />
                 <NumberSelector title="Stake blocks from bonus" default={stakeBlocksFromBonus} onChange={(value) => setStakeBlocksFromBonus(value)} />
-                <NumberSelector title="Max stake share [%/100]" default={maxStakeShare} onChange={(value) => setMaxStakeShare(value)} />
             </div>
         </div>
         <div className={styles.content}>
