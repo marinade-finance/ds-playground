@@ -8,7 +8,7 @@ import { ValueSelector } from "../components/control/value-selector";
 import { ScoreConfig, Scores, calcValidatorsScores } from "../scoring";
 import { Stakes, StakesConfig, calcValidatorsStakes } from "../staking";
 import { Loader } from "../components/common/loader";
-import { getMaxEpoch, getValidatorsRawData } from "../validator-data";
+import { fetchRewards, getMaxEpoch, getValidatorsRawData } from "../validator-data";
 import { AggregatedValidators, aggregateValidatorsData, scoreTooltipBuilders } from "../aggregate";
 import { calcClusterInfo } from "../cluster-info";
 import { zip } from "../utils";
@@ -21,7 +21,7 @@ type Snapshot = {
     version: number
 }
 
-const DEFAULT_SNAPSHOT = 'eyJ2YWx1ZXMiOlsxMCw1LDUsMC4wMSwxLDIsMywxMCwxNCwxNCw4LDk4LDgwLDEwMCwwLjkyLDAuOCwibWluKGNyZWRpdHNfcGN0X21lYW4gXiAxMCwgMSkiLCJwaWVjZXdpc2UoKGJwX21lYW4gLSBicF9jbHVzdGVyX21lYW4pIC8gYnBfY2x1c3Rlcl9zdGRfZGV2IDwgLTEsIGJwX21lYW4gLyAoYnBfY2x1c3Rlcl9tZWFuIC0gYnBfY2x1c3Rlcl9zdGRfZGV2KSwgMSkiLCJwaWVjZXdpc2UoY29tbWlzc2lvbl9pbmZsYXRpb25fbWF4IDw9IDEwLCAoMTAwIC0gY29tbWlzc2lvbl9pbmZsYXRpb25fbWF4KSAvIDEwMCwgMCkiLCIoMTAwIC0gY29tbWlzc2lvbl9tZXYpIC8gMTAwIiwicGllY2V3aXNlKGNvdW50cnlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0IDwgMS8zLCAoMSAtICgzICogY291bnRyeV9zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QpKSBeIDAuMjUsIDApIiwicGllY2V3aXNlKGNpdHlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0IDwgMS8zLCAoMSAtICgzICogY2l0eV9zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QpKSBeIDAuMjUsIDApIiwicGllY2V3aXNlKGFzb19zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QgPCAxLzMsICgxIC0gKDMgKiBhc29fc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAwLjI1LCAwKSIsInBpZWNld2lzZShub2RlX3N0YWtlX2xhc3QgPCA4MDAwMDAsIDEsIG5vZGVfc3Rha2VfbGFzdCA8IDMwMDAwMDAsICgxIC0gKG5vZGVfc3Rha2VfbGFzdCAtIDgwMDAwMCkgLyAoMzAwMDAwMCAtIDgwMDAwMCkpIF4gMC41LCAwKSIsMTAwMDAwMDAsMC4yLDAuMiwidHZsIC8gKCg2MDAwMDAwIC8gIDMwMDAwKSAqIDEuNSBeIChsb2codHZsIC8gNjAwMDAwMCkgLyBsb2coMikpKSIsMSwiMSArICgoc2NvcmUgLSAwLjk0KSAvICgxIC0gMC45NCkpIF4xMCJdLCJ2ZXJzaW9uIjoxfQ=='
+const DEFAULT_SNAPSHOT = 'eyJ2YWx1ZXMiOlsxMCw1LDUsMC4xLDEsMiwzLDEwLDE0LDE0LDgsOTgsODAsMTAwLDAuOTIsMC44LCJtaW4oY3JlZGl0c19wY3RfbWVhbiBeIDEwLCAxKSIsInBpZWNld2lzZSgoYnBfbWVhbiAtIGJwX2NsdXN0ZXJfbWVhbikgLyBicF9jbHVzdGVyX3N0ZF9kZXYgPCAtMSwgYnBfbWVhbiAvIChicF9jbHVzdGVyX21lYW4gLSBicF9jbHVzdGVyX3N0ZF9kZXYpLCAxKSIsInBpZWNld2lzZShjb21taXNzaW9uX2luZmxhdGlvbl9tYXggPD0gMTAsICgxMDAgLSBjb21taXNzaW9uX2luZmxhdGlvbl9tYXgpIC8gMTAwLCAwKSIsIigxMDAgLSBjb21taXNzaW9uX21ldikgLyAxMDAiLCJwaWVjZXdpc2UoY291bnRyeV9zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QgPCAxLzMsICgxIC0gKDMgKiBjb3VudHJ5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCkpIF4gMC4yNSwgMCkiLCJwaWVjZXdpc2UoY2l0eV9zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QgPCAxLzMsICgxIC0gKDMgKiBjaXR5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCkpIF4gMC4yNSwgMCkiLCJwaWVjZXdpc2UoYXNvX3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGFzb19zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QpKSBeIDAuMjUsIDApIiwicGllY2V3aXNlKG5vZGVfc3Rha2VfbGFzdCA8IDgwMDAwMCwgMSwgbm9kZV9zdGFrZV9sYXN0IDwgMzAwMDAwMCwgKDEgLSAobm9kZV9zdGFrZV9sYXN0IC0gODAwMDAwKSAvICgzMDAwMDAwIC0gODAwMDAwKSkgXiAwLjUsIDApIiwxMDAwMDAwMCwwLjIsMC4yLCJ0dmwgLyAoKDYwMDAwMDAgLyAgMzAwMDApICogMS41IF4gKGxvZyh0dmwgLyA2MDAwMDAwKSAvIGxvZygyKSkpIiwxLCIxICsgKChzY29yZSAtIDAuOTQpIC8gKDEgLSAwLjk0KSkgXjEwIl0sInZlcnNpb24iOjF9'
 
 const exportData = (
     { aggregatedValidators, scores, eligibilities, stakes }: {
@@ -64,7 +64,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
     const [componentWeightVoteCredits, setComponentWeightVoteCredits] = useState(10)
     const [componentWeightBlockProduction, setComponentWeightBlockProduction] = useState(5)
     const [componentWeightInflationCommission, setComponentWeightInflationCommission] = useState(5)
-    const [componentWeightMEVCommission, setComponentWeightMEVCommission] = useState(0.01)
+    const [componentWeightMEVCommission, setComponentWeightMEVCommission] = useState(0.1)
     const [componentWeightStakeConcentrationCountry, setComponentWeightStakeConcentrationCountry] = useState(1)
     const [componentWeightStakeConcentrationCity, setComponentWeightStakeConcentrationCity] = useState(2)
     const [componentWeightStakeConcentrationASO, setComponentWeightStakeConcentrationASO] = useState(3)
@@ -304,6 +304,12 @@ export const PagePlaygroundAlgo: React.FC = () => {
                 <div className={styles.button} onClick={() => restoreSnapshot(DEFAULT_SNAPSHOT)}>Reset</div>
                 <div className={styles.button} onClick={() => validatorsTableData && exportData(validatorsTableData)}>Export</div>
                 <div className={styles.button} onClick={() => navigator.clipboard.writeText(window.location.href)}>Copy Link</div>
+                <div className={styles.button} onClick={async () => {
+                    const { inflation, mev } = await fetchRewards()
+                    const mevShare = mev / (inflation + mev)
+                    console.log('Inflation:', inflation, 'MEV:', mev, 'MEV share:', mevShare)
+                    setComponentWeightMEVCommission(Number((mevShare * componentWeightInflationCommission).toFixed(4)))
+                }}>Update MEV</div>
             </div>
             <div className={styles.controlSection}>
                 <div className={styles.title}>Weights of scoring components</div>

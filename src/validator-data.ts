@@ -1,4 +1,7 @@
+import { sum } from "./math"
+
 const VALIDATORS_API = 'https://validators-api.marinade.finance/validators'
+const REWARDS_API = 'https://validators-api.marinade.finance/rewards'
 const VALIDATORS_MEV_API = 'https://kobe.mainnet.jito.network/api/v1/validators'
 const BLACKLIST_URL = 'https://raw.githubusercontent.com/marinade-finance/delegation-strategy-2/master/blacklist.csv'
 const VEMNDE_SNAPSHOT_API = 'https://snapshots-api.marinade.finance/v1/votes/vemnde/latest'
@@ -72,6 +75,16 @@ const fetchMSolVotes = async (): Promise<Votes> => {
         }
     }
     return result
+}
+
+const REWARDS_PAST_EPOCHS = 14
+export type Rewards = { inflation: number, mev: number }
+export const fetchRewards = async (): Promise<Rewards> => {
+    const response = await fetch(`${REWARDS_API}?epochs=${REWARDS_PAST_EPOCHS}`)
+    const { rewards_inflation_est, rewards_mev } = await response.json()
+    const inflation = sum(rewards_inflation_est.map(([_, amount]) => amount))
+    const mev = sum(rewards_mev.map(([_, amount]) => amount))
+    return { inflation, mev }
 }
 
 export const getValidatorsRawData = async (epochs: number) => ({
