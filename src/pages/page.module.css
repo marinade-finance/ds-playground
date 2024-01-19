@@ -66,3 +66,12 @@
     font-style: italic;
     text-align: left;
 }
+
+.statsSection {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    width: 100vw;
+    background-color: #353637;
+}

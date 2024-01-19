@@ -1,0 +1,14 @@
+.stats {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    font-size: 14px;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    padding: 0px 10px;
+}

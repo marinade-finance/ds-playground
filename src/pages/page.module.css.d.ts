@@ -7,6 +7,7 @@ interface CssExports {
   'controlSection': string;
   'navigation': string;
   'pageWrap': string;
+  'statsSection': string;
   'title': string;
 }
 export const cssExports: CssExports;

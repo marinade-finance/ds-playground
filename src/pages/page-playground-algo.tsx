@@ -12,6 +12,7 @@ import { fetchRewards, getMaxEpoch, getValidatorsRawData } from "../validator-da
 import { AggregatedValidators, aggregateValidatorsData, scoreTooltipBuilders } from "../aggregate";
 import { calcClusterInfo } from "../cluster-info";
 import { zip } from "../utils";
+import { Stats } from "../components/stats/stats";
 
 const parseString = (value: string) => value
 
@@ -353,6 +354,11 @@ export const PagePlaygroundAlgo: React.FC = () => {
                 <ValueSelector parse={parseString} title="Stake blocks from score" default={formulaStakeBlocksFromScore} onChange={(value) => setFormulaStakeBlocksFromScore(value)} />
                 <NumberSelector title="Stake blocks from bonus" default={stakeBlocksFromBonus} onChange={(value) => setStakeBlocksFromBonus(value)} />
             </div>
+        </div>
+        <div className={styles.statsSection}>
+            {loading || !deferredTable || JSON.stringify(deferredTable) !== JSON.stringify(validatorsTableData) ? <><br /><br /><br /><Loader /></> : <Stats
+                validatorsTableData={deferredTable}
+            />}
         </div>
         <div className={styles.content}>
             {loading || !deferredTable || JSON.stringify(deferredTable) !== JSON.stringify(validatorsTableData) ? <><br /><br /><br /><Loader /></> : <ValidatorsTable
