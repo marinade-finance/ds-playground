@@ -296,9 +296,9 @@ export const PagePlaygroundAlgo: React.FC = () => {
     const deferredTable = useDeferredValue(validatorsTableData)
 
     return <div className={styles.pageWrap}>
-        <div className={styles.navigation}>
+        {/* <div className={styles.navigation}>
             <Navigation />
-        </div>
+        </div> */}
         <div className={styles.control}>
             <div className={styles.controlSection}>
                 <div className={styles.title}>Controls</div>
