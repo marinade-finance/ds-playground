@@ -22,7 +22,7 @@ type Snapshot = {
     version: number
 }
 
-const DEFAULT_SNAPSHOT = 'eyJ2YWx1ZXMiOlsxMCw1LDUsMC4xLDIsMyw0LDEwLDE0LDE0LDEwLDk4LDgwLDEwMCwwLjkyLDAuOCwibWluKGNyZWRpdHNfcGN0X21lYW4gXiAxMCwgMSkiLCJwaWVjZXdpc2UoKGJwX21lYW4gLSBicF9jbHVzdGVyX21lYW4pIC8gYnBfY2x1c3Rlcl9zdGRfZGV2IDwgLTEsIGJwX21lYW4gLyAoYnBfY2x1c3Rlcl9tZWFuIC0gYnBfY2x1c3Rlcl9zdGRfZGV2KSwgMSkiLCJwaWVjZXdpc2UoY29tbWlzc2lvbl9pbmZsYXRpb25fbWF4IDw9IDEwLCAoMTAwIC0gY29tbWlzc2lvbl9pbmZsYXRpb25fbWF4KSAvIDEwMCwgMCkiLCIoMTAwIC0gY29tbWlzc2lvbl9tZXYpIC8gMTAwIiwicGllY2V3aXNlKGNvdW50cnlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0IDwgMS8zLCAoMSAtICgzICogY291bnRyeV9zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QpKSBeIDAuMjUsIDApIiwicGllY2V3aXNlKGNpdHlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0IDwgMS8zLCAoMSAtICgzICogY2l0eV9zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QpKSBeIDAuMjUsIDApIiwicGllY2V3aXNlKGFzb19zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QgPCAxLzMsICgxIC0gKDMgKiBhc29fc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAwLjI1LCAwKSIsInBpZWNld2lzZShub2RlX3N0YWtlX2xhc3QgPCA4MDAwMDAsIDEsIG5vZGVfc3Rha2VfbGFzdCA8IDMwMDAwMDAsIDEgLSAobm9kZV9zdGFrZV9sYXN0IC0gODAwMDAwKSAvICgzMDAwMDAwIC0gODAwMDAwKSwgMCkiLDEwMDAwMDAwLDAuMiwwLjIsInR2bCAvICgoNjAwMDAwMCAvICAzMDAwMCkgKiAxLjUgXiAobG9nKHR2bCAvIDYwMDAwMDApIC8gbG9nKDIpKSkiLDEsIjEgKyAoKHNjb3JlIC0gMC45NCkgLyAoMSAtIDAuOTQpKSBeMTAiXSwidmVyc2lvbiI6MX0='
+const DEFAULT_SNAPSHOT = 'eyJ2YWx1ZXMiOlsxMCw1LDUsMC4xLDIsMyw0LDEwLDE0LDAsNywwLDgwLDAsMCwwLjgsIm1pbihjcmVkaXRzX3BjdF9tZWFuIF4gMTAsIDEpIiwicGllY2V3aXNlKChicF9tZWFuIC0gYnBfY2x1c3Rlcl9tZWFuKSAvIGJwX2NsdXN0ZXJfc3RkX2RldiA8IC0xLCBicF9tZWFuIC8gKGJwX2NsdXN0ZXJfbWVhbiAtIGJwX2NsdXN0ZXJfc3RkX2RldiksIDEpIiwicGllY2V3aXNlKGNvbW1pc3Npb25faW5mbGF0aW9uX21heCA8PSAxMCwgKDEwMCAtIGNvbW1pc3Npb25faW5mbGF0aW9uX21heCkgLyAxMDAsIDApIiwiKDEwMCAtIGNvbW1pc3Npb25fbWV2KSAvIDEwMCIsInBpZWNld2lzZShjb3VudHJ5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGNvdW50cnlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAwLjI1LCAwKSIsInBpZWNld2lzZShjaXR5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGNpdHlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAwLjI1LCAwKSIsInBpZWNld2lzZShhc29fc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0IDwgMS8zLCAoMSAtICgzICogYXNvX3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCkpIF4gMC4yNSwgMCkiLCJwaWVjZXdpc2Uobm9kZV9zdGFrZV9sYXN0IDwgODAwMDAwLCAxLCBub2RlX3N0YWtlX2xhc3QgPCAzMDAwMDAwLCAxIC0gKG5vZGVfc3Rha2VfbGFzdCAtIDgwMDAwMCkgLyAoMzAwMDAwMCAtIDgwMDAwMCksIDApIiwxMDAwMDAwMCwwLjAxLDAuMDEsInR2bCAvICgoNjAwMDAwMCAvICAzMDAwMCkgKiAxLjUgXiAobG9nKHR2bCAvIDYwMDAwMDApIC8gbG9nKDIpKSkiLDAsIm1heCgxLCAxICsgKChzY29yZSAtIDAuOTQpIC8gKDEgLSAwLjk0KSkgXiAxMCkiXSwidmVyc2lvbiI6MX0='
 
 const exportData = (
     { aggregatedValidators, scores, eligibilities, stakes }: {
@@ -72,12 +72,12 @@ export const PagePlaygroundAlgo: React.FC = () => {
     const [componentWeightStakeConcentrationNode, setComponentWeightStakeConcentrationNode] = useState(10)
 
     const [basicEligibilityEpochs, setBasicEligibilityEpochs] = useState(14)
-    const [bonusEligibilityExtraEpochs, setBonusEligibilityExtraEpochs] = useState(14)
-    const [maxCommission, setMaxCommission] = useState(10)
-    const [voteCreditsWarning, setVoteCreditsWarning] = useState(98)
+    const [bonusEligibilityExtraEpochs, setBonusEligibilityExtraEpochs] = useState(0)
+    const [maxCommission, setMaxCommission] = useState(7)
+    const [voteCreditsWarning, setVoteCreditsWarning] = useState(0)
     const [voteCreditsLow, setVoteCreditsLow] = useState(80)
-    const [minExternalStake, setMinExternalStake] = useState(100)
-    const [minScore, setMinScore] = useState(0.92)
+    const [minExternalStake, setMinExternalStake] = useState(0)
+    const [minScore, setMinScore] = useState(0)
     const [maxStakeShare, setMaxStakeShare] = useState(0.8)
 
     const [formulaVoteCredits, setFormulaVoteCredits] = useState('min(credits_pct_mean ^ 10, 1)')
@@ -90,11 +90,11 @@ export const PagePlaygroundAlgo: React.FC = () => {
     const [formulaStakeConcentrationNode, setFormulaStakeConcentrationNode] = useState('piecewise(node_stake_last < 800000, 1, node_stake_last < 3000000, 1 - (node_stake_last - 800000) / (3000000 - 800000), 0)')
 
     const [tvl, setTvl] = useState(10e6)
-    const [mSolControl, setMSolControl] = useState(0.2)
-    const [veMndeControl, setVeMndeControl] = useState(0.2)
+    const [mSolControl, setMSolControl] = useState(0.01)
+    const [veMndeControl, setVeMndeControl] = useState(0.01)
     const [formulaStakeBlockSize, setFormulaStakeBlockSize] = useState('tvl / ((6000000 /  30000) * 1.5 ^ (log(tvl / 6000000) / log(2)))')
-    const [stakeBlocksFromBonus, setStakeBlocksFromBonus] = useState(1)
-    const [formulaStakeBlocksFromScore, setFormulaStakeBlocksFromScore] = useState('1 + ((score - 0.94) / (1 - 0.94)) ^10')
+    const [stakeBlocksFromBonus, setStakeBlocksFromBonus] = useState(0)
+    const [formulaStakeBlocksFromScore, setFormulaStakeBlocksFromScore] = useState('max(1, 1 + ((score - 0.94) / (1 - 0.94)) ^ 10)')
 
     const snapshotConfig = [
         [componentWeightVoteCredits, setComponentWeightVoteCredits],
