@@ -16,7 +16,7 @@ const webpackConfig = (env: any): Configuration => ({
     },
     output: {
         path: path.join(__dirname, "/build"),
-        filename: "build.js"
+        filename: "bundle.[chunkhash].js",
     },
     module: {
         rules: [
