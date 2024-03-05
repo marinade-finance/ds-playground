@@ -20,10 +20,12 @@ const selectVariables = (clusterInfo: ClusterInfo, aggregatedValidator: Aggregat
 
 export type ScoreConfig = {
     epochs: number // aggregated data are taken for this many past epochs
+    concentrationParams: number[]
 }
 
 export type Score = {
     score: number,
+    concentrationScore: number
     scores: number[]
     values: number[]
     scoreErrors: boolean[]
@@ -36,6 +38,8 @@ const calcValidatorScore = (clusterInfo: ClusterInfo, aggregatedValidator: Aggre
     const tooltips = []
     let totalWeight = 0
     let totalScore = 0
+    let totalConcentrationWeight = 0
+    let totalConcentrationScore = 0
     const variables = { ...selectVariables(clusterInfo, aggregatedValidator, scoreConfig), ...mathUtilityFunctions()}
     for (const [formula, weight, tooltipBuilder] of zip(formulas, weights, scoreTooltipBuilders)) {
         let componentScore = 0
@@ -49,14 +53,18 @@ const calcValidatorScore = (clusterInfo: ClusterInfo, aggregatedValidator: Aggre
         }
         totalWeight += weight
         totalScore += weight * componentScore
+        if (scoreConfig.concentrationParams.includes(scores.length)) {
+            totalConcentrationWeight += weight
+            totalConcentrationScore += weight * componentScore
+        }
         tooltips.push(tooltipBuilder(aggregatedValidator, clusterInfo))
 
         scores.push(componentScore)
     }
-    totalScore /= totalWeight
 
     return {
-        score: totalScore,
+        score: totalScore / totalWeight,
+        concentrationScore: totalConcentrationScore / totalConcentrationWeight,
         scores,
         values,
         scoreErrors,

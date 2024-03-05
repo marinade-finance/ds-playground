@@ -186,6 +186,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
 
     const scoreConfig: ScoreConfig = {
         epochs: basicEligibilityEpochs,
+        concentrationParams: [4, 5, 6, 7],
     }
 
     const weights = [
@@ -342,7 +343,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
                 <NumberSelector title="Vote credits warning [%]" default={voteCreditsWarning} onChange={(value) => setVoteCreditsWarning(value)} />
                 <NumberSelector title="Vote credits low [%]" default={voteCreditsLow} onChange={(value) => setVoteCreditsLow(value)} />
                 <NumberSelector title="Min external stake [SOL]" default={minExternalStake} onChange={(value) => setMinExternalStake(value)} />
-                <NumberSelector title="Minimum score" default={minScore} onChange={(value) => setMinScore(value)} />
+                <NumberSelector title="Minimum concentration score" default={minScore} onChange={(value) => setMinScore(value)} />
                 <NumberSelector title="Max stake share [%/100]" default={maxStakeShare} onChange={(value) => setMaxStakeShare(value)} />
             </div>
             <div className={styles.controlSection}>
