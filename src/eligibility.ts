@@ -63,9 +63,12 @@ const evalHighCommissionIssue = (validator: AggregatedValidator, epochIndex: num
     }
 }
 
-const evalScoreIssue = (epochIndex: number, eligibilityConfig: EligibilityConfig, { score }: Score) => {
-    if (epochIndex === 0 && score < eligibilityConfig.minScore) {
-        return { type: Type.SCORE, message: `Score: ${score}` }
+const evalScoreIssue = (epochIndex: number, eligibilityConfig: EligibilityConfig, { score, concentrationScore }: Score) => {
+    // if (epochIndex === 0 && score < eligibilityConfig.minScore) {
+    //     return { type: Type.SCORE, message: `Score: ${score}` }
+    // }
+    if (epochIndex === 0 && concentrationScore < eligibilityConfig.minScore) {
+        return { type: Type.SCORE, message: `Concentration score: ${concentrationScore}` }
     }
 }
 

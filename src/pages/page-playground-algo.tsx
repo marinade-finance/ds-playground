@@ -22,7 +22,7 @@ type Snapshot = {
     version: number
 }
 
-const DEFAULT_SNAPSHOT = 'eyJ2YWx1ZXMiOlsxMCw1LDUsMC4xLDIsMyw0LDEwLDE0LDAsNywwLDgwLDAsMCwwLjgsIm1pbihjcmVkaXRzX3BjdF9tZWFuIF4gMTAsIDEpIiwicGllY2V3aXNlKChicF9tZWFuIC0gYnBfY2x1c3Rlcl9tZWFuKSAvIGJwX2NsdXN0ZXJfc3RkX2RldiA8IC0xLCBicF9tZWFuIC8gKGJwX2NsdXN0ZXJfbWVhbiAtIGJwX2NsdXN0ZXJfc3RkX2RldiksIDEpIiwicGllY2V3aXNlKGNvbW1pc3Npb25faW5mbGF0aW9uX21heCA8PSAxMCwgKDEwMCAtIGNvbW1pc3Npb25faW5mbGF0aW9uX21heCkgLyAxMDAsIDApIiwiKDEwMCAtIGNvbW1pc3Npb25fbWV2KSAvIDEwMCIsInBpZWNld2lzZShjb3VudHJ5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGNvdW50cnlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAwLjI1LCAwKSIsInBpZWNld2lzZShjaXR5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGNpdHlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAwLjI1LCAwKSIsInBpZWNld2lzZShhc29fc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0IDwgMS8zLCAoMSAtICgzICogYXNvX3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCkpIF4gMC4yNSwgMCkiLCJwaWVjZXdpc2Uobm9kZV9zdGFrZV9sYXN0IDwgODAwMDAwLCAxLCBub2RlX3N0YWtlX2xhc3QgPCAzMDAwMDAwLCAxIC0gKG5vZGVfc3Rha2VfbGFzdCAtIDgwMDAwMCkgLyAoMzAwMDAwMCAtIDgwMDAwMCksIDApIiw0MDAwMDAwMCwwLjAxLDAuMDEsInR2bCAvICgoNjAwMDAwMCAvICAzMDAwMCkgKiAxLjUgXiAobG9nKHR2bCAvIDYwMDAwMDApIC8gbG9nKDIpKSkiLDAsIjEgKyAoKG1heCgwLjk0LCBzY29yZSkgLSAwLjk0KSAvICgxIC0gMC45NCkpIF4gMTAiXSwidmVyc2lvbiI6MX0='
+const DEFAULT_SNAPSHOT = 'eyJ2YWx1ZXMiOlsxMCw1LDQuOSwwLjEsMiwzLDQsMiwxNCwwLDcsMCw4MCwwLDAuOCwwLjgsIm1pbihjcmVkaXRzX3BjdF9tZWFuIF4gMTAsIDEpIiwicGllY2V3aXNlKChicF9tZWFuIC0gYnBfY2x1c3Rlcl9tZWFuKSAvIGJwX2NsdXN0ZXJfc3RkX2RldiA8IC0xLCBicF9tZWFuIC8gKGJwX2NsdXN0ZXJfbWVhbiAtIGJwX2NsdXN0ZXJfc3RkX2RldiksIDEpIiwicGllY2V3aXNlKGNvbW1pc3Npb25faW5mbGF0aW9uX21heCA8PSAxMCwgKDEwMCAtIGNvbW1pc3Npb25faW5mbGF0aW9uX21heCkgLyAxMDAsIDApIiwiKDEwMCAtIGNvbW1pc3Npb25fbWV2KSAvIDEwMCIsInBpZWNld2lzZShjb3VudHJ5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGNvdW50cnlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAoMS8zKSwgMCkiLCJwaWVjZXdpc2UoY2l0eV9zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QgPCAxLzMsICgxIC0gKDMgKiBjaXR5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCkpIF4gKDEvMyksIDApIiwicGllY2V3aXNlKGFzb19zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QgPCAxLzMsICgxIC0gKDMgKiBhc29fc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAoMS8zKSwgMCkiLCJwaWVjZXdpc2Uobm9kZV9zdGFrZV9sYXN0IDwgMTAwMDAwLCAxLCBub2RlX3N0YWtlX2xhc3QgPCA0MDAwMDAwLCAxIC0gKG5vZGVfc3Rha2VfbGFzdCAtIDEwMDAwMCkgLyAoNDAwMDAwMCAtIDEwMDAwMCksIDApIiwxMDAwMDAwMCwwLjAxLDAuMDEsInR2bCAvICgoNjAwMDAwMCAvICAzMDAwMCkgKiAxLjUgXiAobG9nKHR2bCAvIDYwMDAwMDApIC8gbG9nKDIpKSkiLDAsIjEgKyAoKG1heCgwLjk0LCBzY29yZSkgLSAwLjk0KSAvICgxIC0gMC45NCkpIF4gMTAiXSwidmVyc2lvbiI6MX0='
 
 const exportData = (
     { aggregatedValidators, scores, eligibilities, stakes }: {
@@ -62,14 +62,17 @@ export const PagePlaygroundAlgo: React.FC = () => {
     const [loading, setLoading] = useState(true)
     const [validatorsRawData, setValidatorsRawData] = useState(null)
 
+    const targetSumOfRewardsWeight = 5
+    const mevHeuristicWeight = 0.1
+
     const [componentWeightVoteCredits, setComponentWeightVoteCredits] = useState(10)
     const [componentWeightBlockProduction, setComponentWeightBlockProduction] = useState(5)
-    const [componentWeightInflationCommission, setComponentWeightInflationCommission] = useState(5)
-    const [componentWeightMEVCommission, setComponentWeightMEVCommission] = useState(0.1)
+    const [componentWeightInflationCommission, setComponentWeightInflationCommission] = useState(targetSumOfRewardsWeight - mevHeuristicWeight)
+    const [componentWeightMEVCommission, setComponentWeightMEVCommission] = useState(mevHeuristicWeight)
     const [componentWeightStakeConcentrationCountry, setComponentWeightStakeConcentrationCountry] = useState(2)
     const [componentWeightStakeConcentrationCity, setComponentWeightStakeConcentrationCity] = useState(3)
     const [componentWeightStakeConcentrationASO, setComponentWeightStakeConcentrationASO] = useState(4)
-    const [componentWeightStakeConcentrationNode, setComponentWeightStakeConcentrationNode] = useState(10)
+    const [componentWeightStakeConcentrationNode, setComponentWeightStakeConcentrationNode] = useState(2)
 
     const [basicEligibilityEpochs, setBasicEligibilityEpochs] = useState(14)
     const [bonusEligibilityExtraEpochs, setBonusEligibilityExtraEpochs] = useState(0)
@@ -77,19 +80,19 @@ export const PagePlaygroundAlgo: React.FC = () => {
     const [voteCreditsWarning, setVoteCreditsWarning] = useState(0)
     const [voteCreditsLow, setVoteCreditsLow] = useState(80)
     const [minExternalStake, setMinExternalStake] = useState(0)
-    const [minScore, setMinScore] = useState(0)
+    const [minScore, setMinScore] = useState(0.8)
     const [maxStakeShare, setMaxStakeShare] = useState(0.8)
 
     const [formulaVoteCredits, setFormulaVoteCredits] = useState('min(credits_pct_mean ^ 10, 1)')
     const [formulaBlockProduction, setFormulaBlockProduction] = useState('piecewise((bp_mean - bp_cluster_mean) / bp_cluster_std_dev < -1, bp_mean / (bp_cluster_mean - bp_cluster_std_dev), 1)')
     const [formulaInflationCommission, setFormulaInflationCommission] = useState('piecewise(commission_inflation_max <= 10, (100 - commission_inflation_max) / 100, 0)')
     const [formulaMEVCommission, setFormulaMEVCommission] = useState('(100 - commission_mev) / 100')
-    const [formulaStakeConcentrationCountry, setFormulaStakeConcentrationCountry] = useState('piecewise(country_stake_concentration_last < 1/3, (1 - (3 * country_stake_concentration_last)) ^ 0.25, 0)')
-    const [formulaStakeConcentrationCity, setFormulaStakeConcentrationCity] = useState('piecewise(city_stake_concentration_last < 1/3, (1 - (3 * city_stake_concentration_last)) ^ 0.25, 0)')
-    const [formulaStakeConcentrationASO, setFormulaStakeConcentrationASO] = useState('piecewise(aso_stake_concentration_last < 1/3, (1 - (3 * aso_stake_concentration_last)) ^ 0.25, 0)')
-    const [formulaStakeConcentrationNode, setFormulaStakeConcentrationNode] = useState('piecewise(node_stake_last < 800000, 1, node_stake_last < 3000000, 1 - (node_stake_last - 800000) / (3000000 - 800000), 0)')
+    const [formulaStakeConcentrationCountry, setFormulaStakeConcentrationCountry] = useState('piecewise(country_stake_concentration_last < 1/3, (1 - (3 * country_stake_concentration_last)) ^ (1/3), 0)')
+    const [formulaStakeConcentrationCity, setFormulaStakeConcentrationCity] = useState('piecewise(city_stake_concentration_last < 1/3, (1 - (3 * city_stake_concentration_last)) ^ (1/3), 0)')
+    const [formulaStakeConcentrationASO, setFormulaStakeConcentrationASO] = useState('piecewise(aso_stake_concentration_last < 1/3, (1 - (3 * aso_stake_concentration_last)) ^ (1/3), 0)')
+    const [formulaStakeConcentrationNode, setFormulaStakeConcentrationNode] = useState('piecewise(node_stake_last < 100000, 1, node_stake_last < 4000000, 1 - (node_stake_last - 100000) / (4000000 - 100000), 0)')
 
-    const [tvl, setTvl] = useState(40e6)
+    const [tvl, setTvl] = useState(10e6)
     const [mSolControl, setMSolControl] = useState(0.01)
     const [veMndeControl, setVeMndeControl] = useState(0.01)
     const [formulaStakeBlockSize, setFormulaStakeBlockSize] = useState('tvl / ((6000000 /  30000) * 1.5 ^ (log(tvl / 6000000) / log(2)))')
@@ -186,6 +189,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
 
     const scoreConfig: ScoreConfig = {
         epochs: basicEligibilityEpochs,
+        concentrationParams: [4, 5, 6, 7],
     }
 
     const weights = [
@@ -308,8 +312,10 @@ export const PagePlaygroundAlgo: React.FC = () => {
                 <div className={styles.button} onClick={async () => {
                     const { inflation, mev } = await fetchRewards()
                     const mevShare = mev / (inflation + mev)
+                    const inflationShare = inflation / (inflation + mev)
                     console.log('Inflation:', inflation, 'MEV:', mev, 'MEV share:', mevShare)
-                    setComponentWeightMEVCommission(Number((mevShare * componentWeightInflationCommission).toFixed(4)))
+                    setComponentWeightInflationCommission(Number((inflationShare * targetSumOfRewardsWeight).toFixed(4)))
+                    setComponentWeightMEVCommission(Number((mevShare * targetSumOfRewardsWeight).toFixed(4)))
                 }}>Update MEV</div>
             </div>
             <div className={styles.controlSection}>
@@ -342,7 +348,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
                 <NumberSelector title="Vote credits warning [%]" default={voteCreditsWarning} onChange={(value) => setVoteCreditsWarning(value)} />
                 <NumberSelector title="Vote credits low [%]" default={voteCreditsLow} onChange={(value) => setVoteCreditsLow(value)} />
                 <NumberSelector title="Min external stake [SOL]" default={minExternalStake} onChange={(value) => setMinExternalStake(value)} />
-                <NumberSelector title="Minimum score" default={minScore} onChange={(value) => setMinScore(value)} />
+                <NumberSelector title="Minimum concentration score" default={minScore} onChange={(value) => setMinScore(value)} />
                 <NumberSelector title="Max stake share [%/100]" default={maxStakeShare} onChange={(value) => setMaxStakeShare(value)} />
             </div>
             <div className={styles.controlSection}>
