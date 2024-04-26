@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styles from './validator.module.css'
-import { Issue, ValidatorEligibility } from "../../eligibility";
-import { AggregatedValidator } from "../../aggregate";
-import { Score } from "../../scoring";
-import { Stake } from "../../staking";
+import { Stake, ScoreDto, AggregatedValidator, Issue, ValidatorEligibility  } from '@marinade.finance/scoring'
 
 type Props = {
     aggregatedValidator: AggregatedValidator
     eligibility: ValidatorEligibility
     row: number
-    score: Score
+    score: ScoreDto
     stake: Stake
 }
 
@@ -35,21 +32,24 @@ const buildIssues = (validator: AggregatedValidator, issuesCollection: Issue[][]
 const buildAlgoStakeTooltip = (stake: Stake, eligibility: ValidatorEligibility): string => {
     return [
         `Stake from algo`,
-        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`
+        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`,
+        `Total stake capped by bond: ${Math.round(eligibility.capFromBond).toLocaleString()}`
     ].join('\n')
 }
 
 const buildMSolStakeTooltip = (stake: Stake, eligibility: ValidatorEligibility): string => {
     return [
         `Stake from mSOL`,
-        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`
+        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`,
+        `Total stake capped by bond: ${Math.round(eligibility.capFromBond).toLocaleString()}`
     ].join('\n')
 }
 
 const buildVeMndeStakeTooltip = (stake: Stake, eligibility: ValidatorEligibility): string => {
     return [
         `Stake from veMNDE`,
-        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`
+        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`,
+        `Total stake capped by bond: ${Math.round(eligibility.capFromBond).toLocaleString()}`
     ].join('\n')
 }
 

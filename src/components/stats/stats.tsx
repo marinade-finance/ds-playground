@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from './stats.module.css'
-import { Issue, ValidatorEligibility, ValidatorsEligibilities } from "../../eligibility";
-import { AggregatedValidator, AggregatedValidators } from "../../aggregate";
-import { Score, Scores } from "../../scoring";
-import { Stake, Stakes } from "../../staking";
-import { sum } from "../../math";
+import { ValidatorsEligibilities, Issue, ValidatorEligibility, Stakes, Score, Scores, sum, AggregatedValidators, AggregatedValidator } from '@marinade.finance/scoring';
 
 type Props = {
     validatorsTableData: {
@@ -96,7 +92,6 @@ const concStats = (props: Props, totalStake: number, selector: string) => {
 
 export const Stats: React.FC<Props> = (props: Props) => {
     const totalStake = sum(Object.values(props.validatorsTableData.stakes).map(({ totalStake }) => totalStake))
-    console.log(props.validatorsTableData.aggregatedValidators)
     return <div className={styles.stats}>
         {commissionStats(props)}
         {countStats(props)}
