@@ -2,17 +2,12 @@ import React, { useDeferredValue, useEffect, useMemo, useState } from "react";
 import styles from './page.module.css'
 import { Navigation } from "../components/navigation/navigation";
 import { ValidatorsTable } from "../components/validators-table/validators-table";
-import { EligibilityConfig, ValidatorsEligibilities, calcValidatorsEligibilities } from "../eligibility";
+import { zip, AggregatedValidators, aggregateValidatorsData, getScoreTooltipBuilders, Stakes, StakesConfig, computeValidatorsStakes, ScoreConfig, Scores, computeValidatorsScores, EligibilityConfig, ValidatorsEligibilities, computeValidatorsEligibilities, getMaxEpoch, computeClusterInfo, ScoringConfig, ApiDataProvider } from '@marinade.finance/scoring'
 import { NumberSelector } from "../components/control/number-selector";
 import { ValueSelector } from "../components/control/value-selector";
-import { ScoreConfig, Scores, calcValidatorsScores } from "../scoring";
-import { Stakes, StakesConfig, calcValidatorsStakes } from "../staking";
 import { Loader } from "../components/common/loader";
-import { fetchRewards, getMaxEpoch, getValidatorsRawData } from "../validator-data";
-import { AggregatedValidators, aggregateValidatorsData, scoreTooltipBuilders } from "../aggregate";
-import { calcClusterInfo } from "../cluster-info";
-import { zip } from "../utils";
 import { Stats } from "../components/stats/stats";
+import * as defaultScoringConfig from "@marinade.finance/scoring/dist/constants/marinade.json";
 
 const parseString = (value: string) => value
 
@@ -33,7 +28,7 @@ const exportData = (
     }) => {
     const header = ['voteAccount']
     header.push('score')
-    header.push(...Array.from({ length: scoreTooltipBuilders.length }, (_, i) => `score_component_${i}`))
+    header.push(...Array.from({ length: getScoreTooltipBuilders.length }, (_, i) => `score_component_${i}`))
     header.push('stake')
     header.push('basic_eligible', 'bonus_eligible')
     const rows = []
@@ -59,45 +54,55 @@ const exportData = (
 }
 
 export const PagePlaygroundAlgo: React.FC = () => {
+    const apiDataProvider = new ApiDataProvider(
+        {
+          validatorsURL: "https://validators-api.marinade.finance/validators",
+          blacklistURL: "https://raw.githubusercontent.com/marinade-finance/delegation-strategy-2/master/blacklist.csv",
+          vemndeVotesURL: "https://snapshots-api.marinade.finance/v1/votes/vemnde/latest",
+          msolVotesURL: "https://snapshots-api.marinade.finance/v1/votes/msol/latest",
+          rewardsURL: "https://validators-api.marinade.finance/rewards",
+          jitoMevURL: "https://kobe.mainnet.jito.network/api/v1/validators",
+          bondsURL: "https://validator-bonds-api.marinade.finance/bonds",
+          marinadeTvlURL: "https://api.marinade.finance/tlv",
+        }
+      )
+
     const [loading, setLoading] = useState(true)
     const [validatorsRawData, setValidatorsRawData] = useState(null)
 
-    const targetSumOfRewardsWeight = 5
-    const mevHeuristicWeight = 0.1
+    const [componentWeightVoteCredits, setComponentWeightVoteCredits] = useState(defaultScoringConfig.weightVoteCredits)
+    const [componentWeightBlockProduction, setComponentWeightBlockProduction] = useState(defaultScoringConfig.weightBlockProduction)
+    const [componentWeightInflationCommission, setComponentWeightInflationCommission] = useState(defaultScoringConfig.weightTargetSumOfRewards - defaultScoringConfig.weightMevHeuristic)
+    const [componentWeightMEVCommission, setComponentWeightMEVCommission] = useState(defaultScoringConfig.weightMEVCommission)
+    const [componentWeightStakeConcentrationCountry, setComponentWeightStakeConcentrationCountry] = useState(defaultScoringConfig.weightStakeConcentrationCountry)
+    const [componentWeightStakeConcentrationCity, setComponentWeightStakeConcentrationCity] = useState(defaultScoringConfig.weightStakeConcentrationCity)
+    const [componentWeightStakeConcentrationASO, setComponentWeightStakeConcentrationASO] = useState(defaultScoringConfig.weightStakeConcentrationASO)
+    const [componentWeightStakeConcentrationNode, setComponentWeightStakeConcentrationNode] = useState(defaultScoringConfig.weightStakeConcentrationNode)
 
-    const [componentWeightVoteCredits, setComponentWeightVoteCredits] = useState(10)
-    const [componentWeightBlockProduction, setComponentWeightBlockProduction] = useState(5)
-    const [componentWeightInflationCommission, setComponentWeightInflationCommission] = useState(targetSumOfRewardsWeight - mevHeuristicWeight)
-    const [componentWeightMEVCommission, setComponentWeightMEVCommission] = useState(mevHeuristicWeight)
-    const [componentWeightStakeConcentrationCountry, setComponentWeightStakeConcentrationCountry] = useState(2)
-    const [componentWeightStakeConcentrationCity, setComponentWeightStakeConcentrationCity] = useState(3)
-    const [componentWeightStakeConcentrationASO, setComponentWeightStakeConcentrationASO] = useState(4)
-    const [componentWeightStakeConcentrationNode, setComponentWeightStakeConcentrationNode] = useState(2)
+    const [basicEligibilityEpochs, setBasicEligibilityEpochs] = useState(defaultScoringConfig.basicEligibilityEpochs)
+    const [bonusEligibilityExtraEpochs, setBonusEligibilityExtraEpochs] = useState(defaultScoringConfig.bonusEligibilityExtraEpochs)
+    const [maxCommission, setMaxCommission] = useState(defaultScoringConfig.maxCommission)
+    const [voteCreditsWarning, setVoteCreditsWarning] = useState(defaultScoringConfig.voteCreditsWarning)
+    const [voteCreditsLow, setVoteCreditsLow] = useState(defaultScoringConfig.voteCreditsLow)
+    const [minExternalStake, setMinExternalStake] = useState(defaultScoringConfig.minExternalStake)
+    const [minScore, setMinScore] = useState(defaultScoringConfig.minScore)
+    const [maxStakeShare, setMaxStakeShare] = useState(defaultScoringConfig.maxStakeShare)
 
-    const [basicEligibilityEpochs, setBasicEligibilityEpochs] = useState(14)
-    const [bonusEligibilityExtraEpochs, setBonusEligibilityExtraEpochs] = useState(0)
-    const [maxCommission, setMaxCommission] = useState(7)
-    const [voteCreditsWarning, setVoteCreditsWarning] = useState(0)
-    const [voteCreditsLow, setVoteCreditsLow] = useState(80)
-    const [minExternalStake, setMinExternalStake] = useState(0)
-    const [minScore, setMinScore] = useState(0.8)
-    const [maxStakeShare, setMaxStakeShare] = useState(0.8)
-
-    const [formulaVoteCredits, setFormulaVoteCredits] = useState('min(credits_pct_mean ^ 10, 1)')
-    const [formulaBlockProduction, setFormulaBlockProduction] = useState('piecewise((bp_mean - bp_cluster_mean) / bp_cluster_std_dev < -1, bp_mean / (bp_cluster_mean - bp_cluster_std_dev), 1)')
-    const [formulaInflationCommission, setFormulaInflationCommission] = useState('piecewise(commission_inflation_max <= 10, (100 - commission_inflation_max) / 100, 0)')
-    const [formulaMEVCommission, setFormulaMEVCommission] = useState('(100 - commission_mev) / 100')
-    const [formulaStakeConcentrationCountry, setFormulaStakeConcentrationCountry] = useState('piecewise(country_stake_concentration_last < 1/3, (1 - (3 * country_stake_concentration_last)) ^ (1/3), 0)')
-    const [formulaStakeConcentrationCity, setFormulaStakeConcentrationCity] = useState('piecewise(city_stake_concentration_last < 1/3, (1 - (3 * city_stake_concentration_last)) ^ (1/3), 0)')
-    const [formulaStakeConcentrationASO, setFormulaStakeConcentrationASO] = useState('piecewise(aso_stake_concentration_last < 1/3, (1 - (3 * aso_stake_concentration_last)) ^ (1/3), 0)')
-    const [formulaStakeConcentrationNode, setFormulaStakeConcentrationNode] = useState('piecewise(node_stake_last < 100000, 1, node_stake_last < 4000000, 1 - (node_stake_last - 100000) / (4000000 - 100000), 0)')
+    const [formulaVoteCredits, setFormulaVoteCredits] = useState(defaultScoringConfig.formulaVoteCredits)
+    const [formulaBlockProduction, setFormulaBlockProduction] = useState(defaultScoringConfig.formulaBlockProduction)
+    const [formulaInflationCommission, setFormulaInflationCommission] = useState(defaultScoringConfig.formulaInflationCommission)
+    const [formulaMEVCommission, setFormulaMEVCommission] = useState(defaultScoringConfig.formulaMEVCommission)
+    const [formulaStakeConcentrationCountry, setFormulaStakeConcentrationCountry] = useState(defaultScoringConfig.formulaStakeConcentrationCountry)
+    const [formulaStakeConcentrationCity, setFormulaStakeConcentrationCity] = useState(defaultScoringConfig.formulaStakeConcentrationCity)
+    const [formulaStakeConcentrationASO, setFormulaStakeConcentrationASO] = useState(defaultScoringConfig.formulaStakeConcentrationASO)
+    const [formulaStakeConcentrationNode, setFormulaStakeConcentrationNode] = useState(defaultScoringConfig.formulaStakeConcentrationNode)
 
     const [tvl, setTvl] = useState(10e6)
-    const [mSolControl, setMSolControl] = useState(0.01)
-    const [veMndeControl, setVeMndeControl] = useState(0.01)
-    const [formulaStakeBlockSize, setFormulaStakeBlockSize] = useState('tvl / ((6000000 /  30000) * 1.5 ^ (log(tvl / 6000000) / log(2)))')
-    const [stakeBlocksFromBonus, setStakeBlocksFromBonus] = useState(0)
-    const [formulaStakeBlocksFromScore, setFormulaStakeBlocksFromScore] = useState('1 + ((max(0.94, score) - 0.94) / (1 - 0.94)) ^ 10')
+    const [mSolControl, setMSolControl] = useState(defaultScoringConfig.mSolControl)
+    const [veMndeControl, setVeMndeControl] = useState(defaultScoringConfig.veMndeControl)
+    const [formulaStakeBlockSize, setFormulaStakeBlockSize] = useState(defaultScoringConfig.formulaStakeBlockSize)
+    const [stakeBlocksFromBonus, setStakeBlocksFromBonus] = useState(defaultScoringConfig.stakeBlocksFromBonus)
+    const [formulaStakeBlocksFromScore, setFormulaStakeBlocksFromScore] = useState(defaultScoringConfig.formulaStakeBlocksFromScore)
 
     const snapshotConfig = [
         [componentWeightVoteCredits, setComponentWeightVoteCredits],
@@ -163,7 +168,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
         const [_, maybeStringifiedSnapshot] = window.location.hash.split('!', 2)
         if (maybeStringifiedSnapshot) {
             console.log('loading from snapshot...')
-            restoreSnapshot(maybeStringifiedSnapshot)
+            //restoreSnapshot(maybeStringifiedSnapshot)
         }
     }, [])
 
@@ -176,6 +181,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
         bonusEligibilityExtraEpochs,
         minScore,
         maxStakeShare,
+        maxWarnings: defaultScoringConfig.maxWarnings
     }
 
     const stakesConfig: StakesConfig = {
@@ -190,6 +196,45 @@ export const PagePlaygroundAlgo: React.FC = () => {
     const scoreConfig: ScoreConfig = {
         epochs: basicEligibilityEpochs,
         concentrationParams: [4, 5, 6, 7],
+    }
+
+    const scoringConfig: ScoringConfig = {
+        DS_PUBKEY: defaultScoringConfig.DS_PUBKEY,
+        REWARDS_PAST_EPOCHS: defaultScoringConfig.REWARDS_PAST_EPOCHS,
+        CAP_FROM_BOND: defaultScoringConfig.CAP_FROM_BOND,
+        formulaStakeBlockSize,
+        formulaStakeBlocksFromScore,
+        formulaVoteCredits,
+        formulaBlockProduction,
+        formulaInflationCommission,
+        formulaMEVCommission,
+        formulaStakeConcentrationCountry,
+        formulaStakeConcentrationCity,
+        formulaStakeConcentrationASO,
+        formulaStakeConcentrationNode,
+        weightTargetSumOfRewards: defaultScoringConfig.weightTargetSumOfRewards,
+        weightMevHeuristic: defaultScoringConfig.weightMevHeuristic,
+        weightVoteCredits: componentWeightVoteCredits,
+        weightBlockProduction: componentWeightBlockProduction,
+        weightInflationCommission: componentWeightInflationCommission,
+        weightMEVCommission: componentWeightMEVCommission,
+        weightStakeConcentrationCountry: componentWeightStakeConcentrationCountry,
+        weightStakeConcentrationCity: componentWeightStakeConcentrationCity,
+        weightStakeConcentrationASO: componentWeightStakeConcentrationASO,
+        weightStakeConcentrationNode: componentWeightStakeConcentrationNode,
+        basicEligibilityEpochs,
+        bonusEligibilityExtraEpochs,
+        maxCommission,
+        voteCreditsWarning,
+        voteCreditsLow,
+        minExternalStake,
+        minScore,
+        maxStakeShare,
+        maxWarnings: defaultScoringConfig.maxWarnings,
+        mSolControl,
+        veMndeControl,
+        stakeBlocksFromBonus,
+        concentrationParams: defaultScoringConfig.concentrationParams
     }
 
     const weights = [
@@ -218,7 +263,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
         (async () => {
             setLoading(true)
             try {
-                setValidatorsRawData(await getValidatorsRawData(bonusEligibilityExtraEpochs + basicEligibilityEpochs + 1))
+                setValidatorsRawData(await apiDataProvider.fetchValidators(bonusEligibilityExtraEpochs + basicEligibilityEpochs + 1))
             } catch (err) {
                 setValidatorsRawData(null)
                 console.log(err)
@@ -229,42 +274,44 @@ export const PagePlaygroundAlgo: React.FC = () => {
 
     const [validatorsTableData, setValidatorsTableData] = useState(null)
     useEffect(() => {
-        if (validatorsRawData) {
-            const prefix = Math.random().toString(36).slice(2)
-            const timeLabel = (label: string) => `${prefix}_${label}`
+        (async () => {
+            if (validatorsRawData) {
+                const prefix = Math.random().toString(36).slice(2)
+                const timeLabel = (label: string) => `${prefix}_${label}`
 
-            console.time(timeLabel("getMaxEpoch"))
-            const endEpoch = getMaxEpoch(validatorsRawData.validators)
-            const startEpoch = endEpoch - basicEligibilityEpochs - bonusEligibilityExtraEpochs
-            console.timeEnd(timeLabel("getMaxEpoch"))
+                console.time(timeLabel("getMaxEpoch"))
+                const endEpoch = getMaxEpoch(validatorsRawData.validators)
+                const startEpoch = endEpoch - basicEligibilityEpochs - bonusEligibilityExtraEpochs
+                console.timeEnd(timeLabel("getMaxEpoch"))
 
-            console.time(timeLabel("calcClusterInfo"))
-            const clusterInfo = calcClusterInfo(validatorsRawData, startEpoch, endEpoch)
-            console.timeEnd(timeLabel("calcClusterInfo"))
+                console.time(timeLabel("calcClusterInfo"))
+                const clusterInfo = computeClusterInfo(validatorsRawData, startEpoch, endEpoch)
+                console.timeEnd(timeLabel("calcClusterInfo"))
 
-            console.time(timeLabel("aggregateValidatorsData"))
-            const aggregatedValidators = aggregateValidatorsData(validatorsRawData, startEpoch, endEpoch)
-            console.timeEnd(timeLabel("aggregateValidatorsData"))
+                console.time(timeLabel("aggregateValidatorsData"))
+                const aggregatedValidators = await aggregateValidatorsData(validatorsRawData, startEpoch, endEpoch, apiDataProvider)
+                console.timeEnd(timeLabel("aggregateValidatorsData"))
 
-            console.time(timeLabel("calcValidatorsScores"))
-            const scores = calcValidatorsScores(clusterInfo, aggregatedValidators, formulas, weights, scoreConfig)
-            console.timeEnd(timeLabel("calcValidatorsScores"))
+                console.time(timeLabel("calcValidatorsScores"))
+                const scores = computeValidatorsScores(clusterInfo, aggregatedValidators, formulas, weights, scoreConfig)
+                console.timeEnd(timeLabel("calcValidatorsScores"))
 
-            console.time(timeLabel("calcValidatorsEligibilities"))
-            const eligibilities = calcValidatorsEligibilities(clusterInfo, scores, aggregatedValidators, eligibilityConfig)
-            console.timeEnd(timeLabel("calcValidatorsEligibilities"))
+                console.time(timeLabel("calcValidatorsEligibilities"))
+                const eligibilities = computeValidatorsEligibilities(clusterInfo, scores, aggregatedValidators, eligibilityConfig, eligibilityConfig, scoringConfig)
+                console.timeEnd(timeLabel("calcValidatorsEligibilities"))
 
-            console.time(timeLabel("calcValidatorsStakes"))
-            const stakes = calcValidatorsStakes(aggregatedValidators, scores, eligibilities, stakesConfig, validatorsRawData.mSolVotes, validatorsRawData.veMndeVotes)
-            console.timeEnd(timeLabel("calcValidatorsStakes"))
+                console.time(timeLabel("calcValidatorsStakes"))
+                const stakes = computeValidatorsStakes(aggregatedValidators, scores, eligibilities, stakesConfig, scoringConfig, validatorsRawData.mSolVotes, validatorsRawData.veMndeVotes)
+                console.timeEnd(timeLabel("calcValidatorsStakes"))
 
-            setValidatorsTableData({
-                aggregatedValidators, scores, eligibilities, stakes
-            })
+                setValidatorsTableData({
+                    aggregatedValidators, scores, eligibilities, stakes
+                })
 
-            const snapshot = takeSnapshot()
-            history.pushState(null, null, `#!${snapshot}`);
-        }
+                const snapshot = takeSnapshot()
+                history.pushState(null, null, `#!${snapshot}`);
+            }
+        })
     }, [validatorsRawData, componentWeightVoteCredits,
         componentWeightBlockProduction,
         componentWeightInflationCommission,
@@ -306,16 +353,16 @@ export const PagePlaygroundAlgo: React.FC = () => {
         <div className={styles.control}>
             <div className={styles.controlSection}>
                 <div className={styles.title}>Controls</div>
-                <div className={styles.button} onClick={() => restoreSnapshot(DEFAULT_SNAPSHOT)}>Reset</div>
+                {/* <div className={styles.button} onClick={() => restoreSnapshot(DEFAULT_SNAPSHOT)}>Reset</div> */}
                 <div className={styles.button} onClick={() => validatorsTableData && exportData(validatorsTableData)}>Export</div>
                 <div className={styles.button} onClick={() => navigator.clipboard.writeText(window.location.href)}>Copy Link</div>
                 <div className={styles.button} onClick={async () => {
-                    const { inflation, mev } = await fetchRewards()
+                    const { inflation, mev } = await apiDataProvider.fetchRewards(scoringConfig.REWARDS_PAST_EPOCHS)
                     const mevShare = mev / (inflation + mev)
                     const inflationShare = inflation / (inflation + mev)
                     console.log('Inflation:', inflation, 'MEV:', mev, 'MEV share:', mevShare)
-                    setComponentWeightInflationCommission(Number((inflationShare * targetSumOfRewardsWeight).toFixed(4)))
-                    setComponentWeightMEVCommission(Number((mevShare * targetSumOfRewardsWeight).toFixed(4)))
+                    setComponentWeightInflationCommission(Number((inflationShare * defaultScoringConfig.weightTargetSumOfRewards).toFixed(4)))
+                    setComponentWeightMEVCommission(Number((mevShare * defaultScoringConfig.weightTargetSumOfRewards).toFixed(4)))
                 }}>Update MEV</div>
             </div>
             <div className={styles.controlSection}>

@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styles from './validator.module.css'
-import { Issue, ValidatorEligibility } from "../../eligibility";
-import { AggregatedValidator } from "../../aggregate";
-import { Score } from "../../scoring";
-import { Stake } from "../../staking";
+import { Stake, ScoreDto, AggregatedValidator, Issue, ValidatorEligibility  } from '@marinade.finance/scoring'
 
 type Props = {
     aggregatedValidator: AggregatedValidator
     eligibility: ValidatorEligibility
     row: number
-    score: Score
+    score: ScoreDto
     stake: Stake
 }
 

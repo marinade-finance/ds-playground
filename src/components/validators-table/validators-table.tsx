@@ -1,10 +1,7 @@
 import React from "react";
 import styles from './validators-table.module.css'
+import { AggregatedValidators, Stakes, Scores, ValidatorsEligibilities } from '@marinade.finance/scoring';
 import { Validator } from "../validator/validator";
-import { ValidatorsEligibilities } from "../../eligibility";
-import { Scores } from "../../scoring";
-import { Stakes } from "../../staking";
-import { AggregatedValidators } from "../../aggregate";
 
 type Props = {
     validatorsTableData: {
@@ -13,16 +10,6 @@ type Props = {
         eligibilities: ValidatorsEligibilities
         stakes: Stakes
     }
-}
-
-const getEpochRange = (validators: any, epochs: number) => {
-    let maxEpoch = 0
-    for (const validator of validators) {
-        for (const { epoch } of validator.epoch_stats) {
-            maxEpoch = Math.max(epoch, maxEpoch)
-        }
-    }
-    return [maxEpoch - epochs, maxEpoch]
 }
 
 const orderByEligibiltyAndScore = (scores: Scores, eligibilities: ValidatorsEligibilities): string[] => {

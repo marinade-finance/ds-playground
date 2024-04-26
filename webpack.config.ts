@@ -12,6 +12,11 @@ const webpackConfig = (env: any): Configuration => ({
         plugins: [new TsconfigPathsPlugin()],
         fallback: {
             buffer: require.resolve("buffer/"),
+            util: require.resolve("util/"),
+            path: require.resolve("path-browserify"),
+            net: false,
+            url: require.resolve("url/"),
+            fs: false
         }
     },
     output: {

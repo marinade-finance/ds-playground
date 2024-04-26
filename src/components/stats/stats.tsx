@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from './stats.module.css'
-import { Issue, ValidatorEligibility, ValidatorsEligibilities } from "../../eligibility";
-import { AggregatedValidator, AggregatedValidators } from "../../aggregate";
-import { Score, Scores } from "../../scoring";
-import { Stake, Stakes } from "../../staking";
-import { sum } from "../../math";
+import { ValidatorsEligibilities, Issue, ValidatorEligibility, Stakes, Score, Scores, sum, AggregatedValidators, AggregatedValidator } from '@marinade.finance/scoring';
 
 type Props = {
     validatorsTableData: {
