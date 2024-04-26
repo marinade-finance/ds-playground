@@ -92,7 +92,6 @@ const concStats = (props: Props, totalStake: number, selector: string) => {
 
 export const Stats: React.FC<Props> = (props: Props) => {
     const totalStake = sum(Object.values(props.validatorsTableData.stakes).map(({ totalStake }) => totalStake))
-    console.log(props.validatorsTableData.aggregatedValidators)
     return <div className={styles.stats}>
         {commissionStats(props)}
         {countStats(props)}

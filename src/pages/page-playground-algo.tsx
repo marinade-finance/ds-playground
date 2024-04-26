@@ -2,7 +2,7 @@ import React, { useDeferredValue, useEffect, useMemo, useState } from "react";
 import styles from './page.module.css'
 import { Navigation } from "../components/navigation/navigation";
 import { ValidatorsTable } from "../components/validators-table/validators-table";
-import { zip, AggregatedValidators, aggregateValidatorsData, getScoreTooltipBuilders, Stakes, StakesConfig, computeValidatorsStakes, ScoreConfig, Scores, computeValidatorsScores, EligibilityConfig, ValidatorsEligibilities, computeValidatorsEligibilities, getMaxEpoch, computeClusterInfo, ScoringConfig, ApiDataProvider } from '@marinade.finance/scoring'
+import { zip, AggregatedValidators, aggregateValidatorsData, getScoreTooltipBuilders, Stakes, StakesConfig, computeValidatorsStakes, ScoreConfig, Scores, computeValidatorsScores, EligibilityConfig, ValidatorsEligibilities, computeValidatorsEligibilities, getMaxEpoch, computeClusterInfo, ScoringConfig, ApiDataProvider, ValidatorDto } from '@marinade.finance/scoring'
 import { NumberSelector } from "../components/control/number-selector";
 import { ValueSelector } from "../components/control/value-selector";
 import { Loader } from "../components/common/loader";
@@ -17,7 +17,7 @@ type Snapshot = {
     version: number
 }
 
-const DEFAULT_SNAPSHOT = 'eyJ2YWx1ZXMiOlsxMCw1LDQuOSwwLjEsMiwzLDQsMiwxNCwwLDcsMCw4MCwwLDAuOCwwLjgsIm1pbihjcmVkaXRzX3BjdF9tZWFuIF4gMTAsIDEpIiwicGllY2V3aXNlKChicF9tZWFuIC0gYnBfY2x1c3Rlcl9tZWFuKSAvIGJwX2NsdXN0ZXJfc3RkX2RldiA8IC0xLCBicF9tZWFuIC8gKGJwX2NsdXN0ZXJfbWVhbiAtIGJwX2NsdXN0ZXJfc3RkX2RldiksIDEpIiwicGllY2V3aXNlKGNvbW1pc3Npb25faW5mbGF0aW9uX21heCA8PSAxMCwgKDEwMCAtIGNvbW1pc3Npb25faW5mbGF0aW9uX21heCkgLyAxMDAsIDApIiwiKDEwMCAtIGNvbW1pc3Npb25fbWV2KSAvIDEwMCIsInBpZWNld2lzZShjb3VudHJ5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGNvdW50cnlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAoMS8zKSwgMCkiLCJwaWVjZXdpc2UoY2l0eV9zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QgPCAxLzMsICgxIC0gKDMgKiBjaXR5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCkpIF4gKDEvMyksIDApIiwicGllY2V3aXNlKGFzb19zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QgPCAxLzMsICgxIC0gKDMgKiBhc29fc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAoMS8zKSwgMCkiLCJwaWVjZXdpc2Uobm9kZV9zdGFrZV9sYXN0IDwgMTAwMDAwLCAxLCBub2RlX3N0YWtlX2xhc3QgPCA0MDAwMDAwLCAxIC0gKG5vZGVfc3Rha2VfbGFzdCAtIDEwMDAwMCkgLyAoNDAwMDAwMCAtIDEwMDAwMCksIDApIiwxMDAwMDAwMCwwLjAxLDAuMDEsInR2bCAvICgoNjAwMDAwMCAvICAzMDAwMCkgKiAxLjUgXiAobG9nKHR2bCAvIDYwMDAwMDApIC8gbG9nKDIpKSkiLDAsIjEgKyAoKG1heCgwLjk0LCBzY29yZSkgLSAwLjk0KSAvICgxIC0gMC45NCkpIF4gMTAiXSwidmVyc2lvbiI6MX0='
+const DEFAULT_SNAPSHOT = 'eyJ2YWx1ZXMiOlsxMCw1LDQuOSwwLjEsMiwzLDQsMiwxNCwwLDcsMCw4MCwwLDAuOCwwLjgsIm1pbihjcmVkaXRzX3BjdF9tZWFuIF4gMTAsIDEpIiwicGllY2V3aXNlKChicF9tZWFuIC0gYnBfY2x1c3Rlcl9tZWFuKSAvIGJwX2NsdXN0ZXJfc3RkX2RldiA8IC0xLCBicF9tZWFuIC8gKGJwX2NsdXN0ZXJfbWVhbiAtIGJwX2NsdXN0ZXJfc3RkX2RldiksIDEpIiwicGllY2V3aXNlKGNvbW1pc3Npb25faW5mbGF0aW9uX21heCA8PSAxMCwgKDEwMCAtIGNvbW1pc3Npb25faW5mbGF0aW9uX21heCkgLyAxMDAsIDApIiwiKDEwMCAtIGNvbW1pc3Npb25fbWV2KSAvIDEwMCIsInBpZWNld2lzZShjb3VudHJ5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCA8IDEvMywgKDEgLSAoMyAqIGNvdW50cnlfc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAoMS8zKSwgMCkiLCJwaWVjZXdpc2UoY2l0eV9zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QgPCAxLzMsICgxIC0gKDMgKiBjaXR5X3N0YWtlX2NvbmNlbnRyYXRpb25fbGFzdCkpIF4gKDEvMyksIDApIiwicGllY2V3aXNlKGFzb19zdGFrZV9jb25jZW50cmF0aW9uX2xhc3QgPCAxLzMsICgxIC0gKDMgKiBhc29fc3Rha2VfY29uY2VudHJhdGlvbl9sYXN0KSkgXiAoMS8zKSwgMCkiLCJwaWVjZXdpc2Uobm9kZV9zdGFrZV9sYXN0IDwgMTAwMDAwLCAxLCBub2RlX3N0YWtlX2xhc3QgPCA0MDAwMDAwLCAxIC0gKG5vZGVfc3Rha2VfbGFzdCAtIDEwMDAwMCkgLyAoNDAwMDAwMCAtIDEwMDAwMCksIDApIiwxMDAwMDAwMCwwLjIsMC4yLCJ0dmwgLyAoKDYwMDAwMDAgLyAgMzAwMDApICogMS41IF4gKGxvZyh0dmwgLyA2MDAwMDAwKSAvIGxvZygyKSkpIiwwLCIxICsgKChtYXgoMC45NCwgc2NvcmUpIC0gMC45NCkgLyAoMSAtIDAuOTQpKSBeIDEwIl0sInZlcnNpb24iOjF9='
 
 const exportData = (
     { aggregatedValidators, scores, eligibilities, stakes }: {
@@ -168,7 +168,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
         const [_, maybeStringifiedSnapshot] = window.location.hash.split('!', 2)
         if (maybeStringifiedSnapshot) {
             console.log('loading from snapshot...')
-            //restoreSnapshot(maybeStringifiedSnapshot)
+            restoreSnapshot(maybeStringifiedSnapshot)
         }
     }, [])
 
@@ -195,7 +195,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
 
     const scoreConfig: ScoreConfig = {
         epochs: basicEligibilityEpochs,
-        concentrationParams: [4, 5, 6, 7],
+        concentrationParams: defaultScoringConfig.concentrationParams
     }
 
     const scoringConfig: ScoringConfig = {
@@ -263,7 +263,14 @@ export const PagePlaygroundAlgo: React.FC = () => {
         (async () => {
             setLoading(true)
             try {
-                setValidatorsRawData(await apiDataProvider.fetchValidators(bonusEligibilityExtraEpochs + basicEligibilityEpochs + 1))
+                setValidatorsRawData({
+                    validators: await apiDataProvider.fetchValidators(bonusEligibilityExtraEpochs + basicEligibilityEpochs, false),
+                    mevConfig: await apiDataProvider.fetchValidatorsJitoMEV(false),
+                    blacklist: await apiDataProvider.fetchBlacklist(false),
+                    veMndeVotes: await apiDataProvider.fetchVeMndeVotes(false),
+                    mSolVotes: await apiDataProvider.fetchMSolVotes(false),
+                    bonds: await apiDataProvider.fetchBonds(false)
+                })
             } catch (err) {
                 setValidatorsRawData(null)
                 console.log(err)
@@ -274,44 +281,50 @@ export const PagePlaygroundAlgo: React.FC = () => {
 
     const [validatorsTableData, setValidatorsTableData] = useState(null)
     useEffect(() => {
-        (async () => {
-            if (validatorsRawData) {
+        if (validatorsRawData) {
+            (async () => {
                 const prefix = Math.random().toString(36).slice(2)
                 const timeLabel = (label: string) => `${prefix}_${label}`
 
                 console.time(timeLabel("getMaxEpoch"))
                 const endEpoch = getMaxEpoch(validatorsRawData.validators)
-                const startEpoch = endEpoch - basicEligibilityEpochs - bonusEligibilityExtraEpochs
                 console.timeEnd(timeLabel("getMaxEpoch"))
 
-                console.time(timeLabel("calcClusterInfo"))
-                const clusterInfo = computeClusterInfo(validatorsRawData, startEpoch, endEpoch)
-                console.timeEnd(timeLabel("calcClusterInfo"))
-
+                const validators = validatorsRawData.validators.filter(validator => {
+                    const epochsToInspect = Array.from({ length: 3 }, (_, i) => endEpoch - i);
+                    return epochsToInspect.some(epoch => {
+                      const epochStat = validator.epochStats && validator.epochStats[epoch];
+                      return epochStat && (typeof epochStat.credits === 'number') && epochStat.credits > 0;
+                    });
+                  });
+    
+                console.time(timeLabel("computeClusterInfo"))
+                const clusterInfo = computeClusterInfo(validators, basicEligibilityEpochs, endEpoch)
+                console.timeEnd(timeLabel("computeClusterInfo"))
+    
                 console.time(timeLabel("aggregateValidatorsData"))
-                const aggregatedValidators = await aggregateValidatorsData(validatorsRawData, startEpoch, endEpoch, apiDataProvider)
+                const aggregatedValidators = await aggregateValidatorsData(validators, basicEligibilityEpochs, bonusEligibilityExtraEpochs, validatorsRawData.mevConfig, validatorsRawData.blacklist)
                 console.timeEnd(timeLabel("aggregateValidatorsData"))
-
-                console.time(timeLabel("calcValidatorsScores"))
+    
+                console.time(timeLabel("computeValidatorsScores"))
                 const scores = computeValidatorsScores(clusterInfo, aggregatedValidators, formulas, weights, scoreConfig)
-                console.timeEnd(timeLabel("calcValidatorsScores"))
-
-                console.time(timeLabel("calcValidatorsEligibilities"))
-                const eligibilities = computeValidatorsEligibilities(clusterInfo, scores, aggregatedValidators, eligibilityConfig, eligibilityConfig, scoringConfig)
-                console.timeEnd(timeLabel("calcValidatorsEligibilities"))
-
-                console.time(timeLabel("calcValidatorsStakes"))
+                console.timeEnd(timeLabel("computeValidatorsScores"))
+    
+                console.time(timeLabel("computeValidatorsEligibilities"))
+                const eligibilities = computeValidatorsEligibilities(clusterInfo, scores, aggregatedValidators, validatorsRawData.bonds, eligibilityConfig, scoringConfig)
+                console.timeEnd(timeLabel("computeValidatorsEligibilities"))
+    
+                console.time(timeLabel("computeValidatorsStakes"))
                 const stakes = computeValidatorsStakes(aggregatedValidators, scores, eligibilities, stakesConfig, scoringConfig, validatorsRawData.mSolVotes, validatorsRawData.veMndeVotes)
-                console.timeEnd(timeLabel("calcValidatorsStakes"))
-
+                console.timeEnd(timeLabel("computeValidatorsStakes"))
                 setValidatorsTableData({
                     aggregatedValidators, scores, eligibilities, stakes
-                })
-
+                });
+    
                 const snapshot = takeSnapshot()
                 history.pushState(null, null, `#!${snapshot}`);
-            }
-        })
+            })();
+        }
     }, [validatorsRawData, componentWeightVoteCredits,
         componentWeightBlockProduction,
         componentWeightInflationCommission,
@@ -353,7 +366,7 @@ export const PagePlaygroundAlgo: React.FC = () => {
         <div className={styles.control}>
             <div className={styles.controlSection}>
                 <div className={styles.title}>Controls</div>
-                {/* <div className={styles.button} onClick={() => restoreSnapshot(DEFAULT_SNAPSHOT)}>Reset</div> */}
+                <div className={styles.button} onClick={() => restoreSnapshot(DEFAULT_SNAPSHOT)}>Reset</div>
                 <div className={styles.button} onClick={() => validatorsTableData && exportData(validatorsTableData)}>Export</div>
                 <div className={styles.button} onClick={() => navigator.clipboard.writeText(window.location.href)}>Copy Link</div>
                 <div className={styles.button} onClick={async () => {

@@ -32,21 +32,24 @@ const buildIssues = (validator: AggregatedValidator, issuesCollection: Issue[][]
 const buildAlgoStakeTooltip = (stake: Stake, eligibility: ValidatorEligibility): string => {
     return [
         `Stake from algo`,
-        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`
+        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`,
+        `Total stake capped by bond: ${Math.round(eligibility.capFromBond).toLocaleString()}`
     ].join('\n')
 }
 
 const buildMSolStakeTooltip = (stake: Stake, eligibility: ValidatorEligibility): string => {
     return [
         `Stake from mSOL`,
-        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`
+        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`,
+        `Total stake capped by bond: ${Math.round(eligibility.capFromBond).toLocaleString()}`
     ].join('\n')
 }
 
 const buildVeMndeStakeTooltip = (stake: Stake, eligibility: ValidatorEligibility): string => {
     return [
         `Stake from veMNDE`,
-        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`
+        `Total stake capped by external stake: ${Math.round(eligibility.capFromExternalStake).toLocaleString()}`,
+        `Total stake capped by bond: ${Math.round(eligibility.capFromBond).toLocaleString()}`
     ].join('\n')
 }
 
